@@ -12,5 +12,11 @@ namespace Service.Models
         public int Id { get; set; }
         [Required]
         public string Nombre { get; set; }
+        public bool isDeleted { get; set; } = false;
+
+        public override string ToString()
+        {
+            return Nombre;
+        }
     }
 }

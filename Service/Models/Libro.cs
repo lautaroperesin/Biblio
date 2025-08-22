@@ -23,5 +23,11 @@ namespace Service.Models
         public string Portada { get; set; } = string.Empty;
         public int EditorialId { get; set; } = 1;
         public Editorial? Editorial { get; set; }
+        public bool isDeleted { get; set; } = false;
+
+        public override string ToString()
+        {
+            return Titulo;
+        }
     }
 }
