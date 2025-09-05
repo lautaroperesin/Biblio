@@ -297,6 +297,18 @@ namespace Backend.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "Carreras",
+                columns: new[] { "Id", "Nombre", "isDeleted" },
+                values: new object[,]
+                {
+                    { 1, "Ingeniería", false },
+                    { 2, "Literatura", false },
+                    { 3, "Matemática", false },
+                    { 4, "Historia", false },
+                    { 5, "Filosofía", false }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Editoriales",
                 columns: new[] { "Id", "Nombre", "isDeleted" },
                 values: new object[,]
@@ -328,6 +340,88 @@ namespace Backend.Migrations
                     { 8, "Aventura", false },
                     { 9, "Historia", false },
                     { 10, "Biografía", false }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Usuarios",
+                columns: new[] { "Id", "Dni", "Domicilio", "Email", "FechaRegistracion", "Nombre", "Observacion", "Password", "Telefono", "TipoRol", "isDeleted" },
+                values: new object[,]
+                {
+                    { 1, "12345678", "Calle Falsa 123", "demo@demo.com", new DateTime(2025, 9, 1, 16, 24, 38, 724, DateTimeKind.Local).AddTicks(7108), "Usuario Demo", "", "1234", "123456789", 0, false },
+                    { 2, "87654321", "Calle Verdadera 456", "ana@prueba.com", new DateTime(2025, 9, 1, 16, 24, 38, 724, DateTimeKind.Local).AddTicks(7112), "Ana Prueba", "", "abcd", "987654321", 0, false },
+                    { 3, "11223344", "Av. Siempre Viva 742", "carlos@test.com", new DateTime(2025, 9, 1, 16, 24, 38, 724, DateTimeKind.Local).AddTicks(7114), "Carlos Test", "", "pass", "111222333", 0, false },
+                    { 4, "55667788", "Calle Real 100", "lucia@ejemplo.com", new DateTime(2025, 9, 1, 16, 24, 38, 724, DateTimeKind.Local).AddTicks(7116), "Lucía Ejemplo", "", "lucia", "444555666", 0, false },
+                    { 5, "99887766", "Calle Nueva 321", "pedro@alumno.com", new DateTime(2025, 9, 1, 16, 24, 38, 724, DateTimeKind.Local).AddTicks(7118), "Pedro Alumno", "", "pedro", "777888999", 0, false }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Libros",
+                columns: new[] { "Id", "AnioPublicacion", "Descripcion", "EditorialId", "Paginas", "Portada", "Sinopsis", "Titulo", "isDeleted" },
+                values: new object[,]
+                {
+                    { 1, 1967, "Una novela emblemática del realismo mágico.", 1, 417, "https://example.com/cien_anos_de_soledad.jpg", "La historia de la familia Buendía a lo largo de varias generaciones en el pueblo ficticio de Macondo.", "Cien Años de Soledad", false },
+                    { 2, 1982, "Una saga familiar con elementos sobrenaturales.", 2, 448, "https://example.com/la_casa_de_los_espiritus.jpg", "La historia de la familia Trueba y sus experiencias a lo largo de varias generaciones en Chile.", "La Casa de los Espíritus", false },
+                    { 3, 1605, "Una novela clásica de la literatura española.", 3, 863, "https://example.com/don_quijote.jpg", "Las aventuras del ingenioso hidalgo Don Quijote y su fiel escudero Sancho Panza.", "Don Quijote de la Mancha", false }
+                });
+
+            migrationBuilder.InsertData(
+                table: "UsuarioCarreras",
+                columns: new[] { "Id", "CarreraId", "UsuarioId", "isDeleted" },
+                values: new object[,]
+                {
+                    { 1, 1, 1, false },
+                    { 2, 2, 2, false },
+                    { 3, 3, 3, false },
+                    { 4, 4, 4, false },
+                    { 5, 5, 5, false }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Ejemplaes",
+                columns: new[] { "Id", "Disponible", "Estado", "LibroId", "isDeleted" },
+                values: new object[,]
+                {
+                    { 1, true, 1, 1, false },
+                    { 2, false, 1, 2, false },
+                    { 3, true, 3, 3, false },
+                    { 4, true, 1, 3, false },
+                    { 5, false, 2, 2, false }
+                });
+
+            migrationBuilder.InsertData(
+                table: "LibroAutores",
+                columns: new[] { "Id", "AutorId", "LibroId", "isDeleted" },
+                values: new object[,]
+                {
+                    { 1, 1, 1, false },
+                    { 2, 2, 2, false },
+                    { 3, 3, 3, false },
+                    { 4, 4, 3, false },
+                    { 5, 2, 2, false }
+                });
+
+            migrationBuilder.InsertData(
+                table: "LibroGeneros",
+                columns: new[] { "Id", "GeneroId", "LibroId", "isDeleted" },
+                values: new object[,]
+                {
+                    { 1, 1, 1, false },
+                    { 2, 2, 2, false },
+                    { 3, 1, 3, false },
+                    { 4, 5, 2, false },
+                    { 5, 3, 3, false }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Prestamos",
+                columns: new[] { "Id", "EjemplarId", "FechaDevolucion", "FechaPrestamo", "UsuarioId", "isDeleted" },
+                values: new object[,]
+                {
+                    { 1, 1, new DateTime(2025, 9, 8, 16, 24, 38, 724, DateTimeKind.Local).AddTicks(7191), new DateTime(2025, 9, 1, 16, 24, 38, 724, DateTimeKind.Local).AddTicks(7190), 1, false },
+                    { 2, 2, new DateTime(2025, 9, 11, 16, 24, 38, 724, DateTimeKind.Local).AddTicks(7197), new DateTime(2025, 9, 1, 16, 24, 38, 724, DateTimeKind.Local).AddTicks(7197), 2, false },
+                    { 3, 3, new DateTime(2025, 9, 6, 16, 24, 38, 724, DateTimeKind.Local).AddTicks(7199), new DateTime(2025, 9, 1, 16, 24, 38, 724, DateTimeKind.Local).AddTicks(7199), 3, false },
+                    { 4, 4, new DateTime(2025, 9, 15, 16, 24, 38, 724, DateTimeKind.Local).AddTicks(7201), new DateTime(2025, 9, 1, 16, 24, 38, 724, DateTimeKind.Local).AddTicks(7201), 4, false },
+                    { 5, 5, new DateTime(2025, 9, 4, 16, 24, 38, 724, DateTimeKind.Local).AddTicks(7204), new DateTime(2025, 9, 1, 16, 24, 38, 724, DateTimeKind.Local).AddTicks(7203), 5, false }
                 });
 
             migrationBuilder.CreateIndex(

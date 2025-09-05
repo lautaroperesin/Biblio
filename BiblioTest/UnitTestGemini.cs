@@ -1,6 +1,7 @@
-using System.Text.Json;
 using System.Text;
+using System.Text.Json;
 using Microsoft.Extensions.Configuration;
+using Service.DTOs;
 using Service.Services;
 
 namespace BiblioTest
@@ -10,6 +11,8 @@ namespace BiblioTest
         [Fact]
         public async void TestObtenerResumenLibroConIA()
         {
+            await LoginTest();
+
             var configuration = new ConfigurationBuilder()
                  .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                  .AddEnvironmentVariables()
@@ -61,10 +64,31 @@ namespace BiblioTest
                   .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                   .AddEnvironmentVariables()
                   .Build();
-            var prompt = $"Me puedes dar un resumen de 100 palabras como máximo del libro Sin Red: Nadal, Federer y la historia detrás del duelo que cambió el tenis";
+
+            await LoginTest();
+
+            var prompt = $"Me puedes dar un resumen de 100 palabras como máximo del libro Deja de ser tú de Joe Dispenza";
             var servicio = new GeminiService(configuration);
             var resultado = await servicio.GetPromptResponse(prompt);
             Assert.NotNull(resultado);
+        }
+
+        private async Task LoginTest()
+        {
+            // Construimos la configuración para pasarsela a AuthService
+            var config = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .Build();
+
+            // Primero nos autenticamos para obtener el token
+            var serviceAuth = new AuthService(config);
+            var token = await serviceAuth.Login(new LoginDTO
+            {
+                Username = "lautiperesin@gmail.com",
+                Password = "1234lauti"
+            });
+
+            GeminiService.token = token;
         }
     }
 }

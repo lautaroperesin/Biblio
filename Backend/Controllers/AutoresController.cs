@@ -7,11 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.DataContext;
 using Service.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class AutoresController : ControllerBase
     {
         private readonly BiblioContext _context;
@@ -25,7 +27,7 @@ namespace Backend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Autor>>> GetAutores([FromQuery] string filtro = "")
         {
-            return await _context.Autores.AsNoTracking().Where(a => a.Nombre.Contains(filtro)).ToListAsync();
+            return await _context.Autores.AsNoTracking().Where(a => a.Nombre.ToUpper().Contains(filtro.ToUpper())).ToListAsync();
         }
 
         [HttpGet("deleteds")]

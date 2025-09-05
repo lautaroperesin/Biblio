@@ -1,4 +1,5 @@
 ﻿    using Microsoft.EntityFrameworkCore;
+using Service.Enums;
 using Service.Models;
 
 namespace Backend.DataContext
@@ -80,6 +81,107 @@ namespace Backend.DataContext
                 new Editorial { Id = 9, Nombre = "Wiley" },
                 new Editorial { Id = 10, Nombre = "Springer" }
                 );
+
+            // Datos semilla de libros
+            modelBuilder.Entity<Libro>().HasData(
+                new Libro
+                {
+                    Id = 1,
+                    Titulo = "Cien Años de Soledad",
+                    Descripcion = "Una novela emblemática del realismo mágico.",
+                    Sinopsis = "La historia de la familia Buendía a lo largo de varias generaciones en el pueblo ficticio de Macondo.",
+                    Paginas = 417,
+                    AnioPublicacion = 1967,
+                    Portada = "https://example.com/cien_anos_de_soledad.jpg",
+                    EditorialId = 1
+                },
+                new Libro
+                {
+                    Id = 2,
+                    Titulo = "La Casa de los Espíritus",
+                    Descripcion = "Una saga familiar con elementos sobrenaturales.",
+                    Sinopsis = "La historia de la familia Trueba y sus experiencias a lo largo de varias generaciones en Chile.",
+                    Paginas = 448,
+                    AnioPublicacion = 1982,
+                    Portada = "https://example.com/la_casa_de_los_espiritus.jpg",
+                    EditorialId = 2
+                },
+                new Libro
+                {
+                    Id = 3,
+                    Titulo = "Don Quijote de la Mancha",
+                    Descripcion = "Una novela clásica de la literatura española.",
+                    Sinopsis = "Las aventuras del ingenioso hidalgo Don Quijote y su fiel escudero Sancho Panza.",
+                    Paginas = 863,
+                    AnioPublicacion = 1605,
+                    Portada = "https://example.com/don_quijote.jpg",
+                    EditorialId = 3
+                }
+            );
+
+            // LibroAutores
+            modelBuilder.Entity<LibroAutor>().HasData(
+                new LibroAutor { Id = 1, LibroId = 1, AutorId = 1, isDeleted = false },
+                new LibroAutor { Id = 2, LibroId = 2, AutorId = 2, isDeleted = false },
+                new LibroAutor { Id = 3, LibroId = 3, AutorId = 3, isDeleted = false },
+                new LibroAutor { Id = 4, LibroId = 3, AutorId = 4, isDeleted = false },
+                new LibroAutor { Id = 5, LibroId = 2, AutorId = 2, isDeleted = false }
+            );
+
+            // LibroGeneros
+            modelBuilder.Entity<LibroGenero>().HasData(
+                new LibroGenero { Id = 1, LibroId = 1, GeneroId = 1, isDeleted = false },
+                new LibroGenero { Id = 2, LibroId = 2, GeneroId = 2, isDeleted = false },
+                new LibroGenero { Id = 3, LibroId = 3, GeneroId = 1, isDeleted = false },
+                new LibroGenero { Id = 4, LibroId = 2, GeneroId = 5, isDeleted = false },
+                new LibroGenero { Id = 5, LibroId = 3, GeneroId = 3, isDeleted = false }
+            );
+
+            // Usuarios
+            modelBuilder.Entity<Usuario>().HasData(
+                new Usuario { Id = 1, Nombre = "Usuario Demo", Email = "demo@demo.com", Password = "1234", TipoRol = TipoRolEnum.Alumno, FechaRegistracion = DateTime.Now, Dni = "12345678", Domicilio = "Calle Falsa 123", Telefono = "123456789", Observacion = "", isDeleted = false },
+                new Usuario { Id = 2, Nombre = "Ana Prueba", Email = "ana@prueba.com", Password = "abcd", TipoRol = TipoRolEnum.Alumno, FechaRegistracion = DateTime.Now, Dni = "87654321", Domicilio = "Calle Verdadera 456", Telefono = "987654321", Observacion = "", isDeleted = false },
+                new Usuario { Id = 3, Nombre = "Carlos Test", Email = "carlos@test.com", Password = "pass", TipoRol = TipoRolEnum.Alumno, FechaRegistracion = DateTime.Now, Dni = "11223344", Domicilio = "Av. Siempre Viva 742", Telefono = "111222333", Observacion = "", isDeleted = false },
+                new Usuario { Id = 4, Nombre = "Lucía Ejemplo", Email = "lucia@ejemplo.com", Password = "lucia", TipoRol = TipoRolEnum.Alumno, FechaRegistracion = DateTime.Now, Dni = "55667788", Domicilio = "Calle Real 100", Telefono = "444555666", Observacion = "", isDeleted = false },
+                new Usuario { Id = 5, Nombre = "Pedro Alumno", Email = "pedro@alumno.com", Password = "pedro", TipoRol = TipoRolEnum.Alumno, FechaRegistracion = DateTime.Now, Dni = "99887766", Domicilio = "Calle Nueva 321", Telefono = "777888999", Observacion = "", isDeleted = false }
+            );
+
+            // Carreras
+            modelBuilder.Entity<Carrera>().HasData(
+                new Carrera { Id = 1, Nombre = "Ingeniería", isDeleted = false },
+                new Carrera { Id = 2, Nombre = "Literatura", isDeleted = false },
+                new Carrera { Id = 3, Nombre = "Matemática", isDeleted = false },
+                new Carrera { Id = 4, Nombre = "Historia", isDeleted = false },
+                new Carrera { Id = 5, Nombre = "Filosofía", isDeleted = false }
+            );
+
+            // UsuarioCarreras
+            modelBuilder.Entity<UsuarioCarrera>().HasData(
+                new UsuarioCarrera { Id = 1, UsuarioId = 1, CarreraId = 1, isDeleted = false },
+                new UsuarioCarrera { Id = 2, UsuarioId = 2, CarreraId = 2, isDeleted = false },
+                new UsuarioCarrera { Id = 3, UsuarioId = 3, CarreraId = 3, isDeleted = false },
+                new UsuarioCarrera { Id = 4, UsuarioId = 4, CarreraId = 4, isDeleted = false },
+                new UsuarioCarrera { Id = 5, UsuarioId = 5, CarreraId = 5, isDeleted = false }
+            );
+
+            // Ejemplares
+            modelBuilder.Entity<Ejemplar>().HasData(
+                new Ejemplar { Id = 1, LibroId = 1, Disponible = true, Estado = EstadoEjemplarEnum.MuyBueno, isDeleted = false },
+                new Ejemplar { Id = 2, LibroId = 2, Disponible = false, Estado = EstadoEjemplarEnum.MuyBueno, isDeleted = false },
+                new Ejemplar { Id = 3, LibroId = 3, Disponible = true, Estado = EstadoEjemplarEnum.Regular, isDeleted = false },
+                new Ejemplar { Id = 4, LibroId = 3, Disponible = true, Estado = EstadoEjemplarEnum.MuyBueno, isDeleted = false },
+                new Ejemplar { Id = 5, LibroId = 2, Disponible = false, Estado = EstadoEjemplarEnum.Bueno, isDeleted = false }
+            );
+
+            // Prestamos
+            modelBuilder.Entity<Prestamo>().HasData(
+                new Prestamo { Id = 1, UsuarioId = 1, EjemplarId = 1, FechaPrestamo = DateTime.Now, FechaDevolucion = DateTime.Now.AddDays(7), isDeleted = false },
+                new Prestamo { Id = 2, UsuarioId = 2, EjemplarId = 2, FechaPrestamo = DateTime.Now, FechaDevolucion = DateTime.Now.AddDays(10), isDeleted = false },
+                new Prestamo { Id = 3, UsuarioId = 3, EjemplarId = 3, FechaPrestamo = DateTime.Now, FechaDevolucion = DateTime.Now.AddDays(5), isDeleted = false },
+                new Prestamo { Id = 4, UsuarioId = 4, EjemplarId = 2, FechaPrestamo = DateTime.Now, FechaDevolucion = DateTime.Now.AddDays(14), isDeleted = false },
+                new Prestamo { Id = 5, UsuarioId = 5, EjemplarId = 3, FechaPrestamo = DateTime.Now, FechaDevolucion = DateTime.Now.AddDays(3), isDeleted = false }
+            );
+
 
             #endregion
 
