@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Elementos de la solución",
 		.gitignore = .gitignore
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppMovil", "AppMovil\AppMovil.csproj", "{F8D0FF0C-6C20-412B-BC45-BDB885F8663D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,12 @@ Global
 		{D05737E7-43CC-4E22-A0B8-C70209B8AF33}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D05737E7-43CC-4E22-A0B8-C70209B8AF33}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D05737E7-43CC-4E22-A0B8-C70209B8AF33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8D0FF0C-6C20-412B-BC45-BDB885F8663D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8D0FF0C-6C20-412B-BC45-BDB885F8663D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8D0FF0C-6C20-412B-BC45-BDB885F8663D}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{F8D0FF0C-6C20-412B-BC45-BDB885F8663D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8D0FF0C-6C20-412B-BC45-BDB885F8663D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8D0FF0C-6C20-412B-BC45-BDB885F8663D}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

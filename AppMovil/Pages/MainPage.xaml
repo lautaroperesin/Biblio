@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:AppMovil.ViewModels"
+             x:Class="AppMovil.MainPage"
+             Title="Inicio">
+
+    <ContentPage.BindingContext>
+        <viewModels:MainPageViewModel />
+    </ContentPage.BindingContext>
+
+    <ScrollView>
+        <StackLayout Padding="20" Spacing="25">
+            
+            <!-- Header con logo y título -->
+            <Frame BackgroundColor="#2196F3" CornerRadius="15" Padding="20" HasShadow="True">
+                <StackLayout Orientation="Vertical" HorizontalOptions="Center">
+                    <Label Text="📚" FontSize="60" HorizontalOptions="Center" TextColor="White"/>
+                    <Label Text="{Binding BienvenidaMessage}" FontSize="16" TextColor="White" HorizontalOptions="Center"/>
+                    <Label Text="{Binding TituloApp}" FontSize="28" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
+                    <Label Text="{Binding Descripcion}" FontSize="14" TextColor="White" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
+                </StackLayout>
+            </Frame>
+
+            <!-- Fecha actual -->
+            <Frame BackgroundColor="#F5F5F5" CornerRadius="10" Padding="15">
+                <Label Text="{Binding FechaFormateada}" FontSize="16" TextColor="#333" HorizontalOptions="Center" FontAttributes="Italic"/>
+            </Frame>
+
+            <!-- Título de accesos rápidos -->
+            <Label Text="Accesos Rápidos" FontSize="20" FontAttributes="Bold" TextColor="#333" HorizontalOptions="Center"/>
+
+            <!-- Lista de accesos rápidos -->
+            <CollectionView ItemsSource="{Binding AccesosRapidos}" SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame BackgroundColor="{Binding Color}" CornerRadius="10" Margin="0,5" HasShadow="True">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MainPageViewModel}}, Path=NavegaCommand}" 
+                                                      CommandParameter="{Binding Ruta}"/>
+                            </Frame.GestureRecognizers>
+                            <StackLayout Orientation="Horizontal" Padding="10">
+                                <StackLayout VerticalOptions="Center" HorizontalOptions="FillAndExpand">
+                                    <Label Text="{Binding Titulo}" FontSize="18" FontAttributes="Bold" TextColor="White"/>
+                                    <Label Text="{Binding Descripcion}" FontSize="14" TextColor="White" Opacity="0.8"/>
+                                </StackLayout>
+                                <Label Text="▶" FontSize="20" TextColor="White" VerticalOptions="Center"/>
+                            </StackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Footer informativo -->
+            <StackLayout Orientation="Vertical" Spacing="10" Margin="0,20,0,0">
+                <BoxView Color="#E0E0E0" HeightRequest="1"/>
+                <Label Text="Instituto Superior Politécnico" FontSize="14" TextColor="#666" HorizontalOptions="Center"/>
+                <Label Text="Sistema de Gestión Bibliotecaria" FontSize="12" TextColor="#999" HorizontalOptions="Center"/>
+            </StackLayout>
+
+        </StackLayout>
+    </ScrollView>
+
+</ContentPage>

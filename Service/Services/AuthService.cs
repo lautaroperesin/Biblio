@@ -12,10 +12,8 @@ namespace Service.Services
 {
     public class AuthService
     {
-        private readonly IConfiguration _configuration;
-        public AuthService(IConfiguration configuration)
+        public AuthService()
         {
-            _configuration = configuration;
         }
 
         public async Task<string?> Login(LoginDTO? login)
@@ -27,7 +25,7 @@ namespace Service.Services
 
             try
             {
-                var urlApi = _configuration["UrlApi"];
+                var urlApi = Properties.Resources.urlApi;
                 var endpointAuth = ApiEndpoints.GetEndpoint("Login");
                 var client = new HttpClient();
                 var response = await client.PostAsJsonAsync($"{urlApi}{endpointAuth}/login", login);

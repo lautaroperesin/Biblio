@@ -48,6 +48,24 @@ namespace Backend.Controllers
             return usuario;
         }
 
+
+        // GET: byemail
+        [HttpGet("byemail")]
+        public async Task<ActionResult<Usuario>> GetByEmail([FromQuery] string? email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return BadRequest("Email inválido");
+            }
+
+            var usuario = await _context.Usuarios.AsNoTracking().FirstOrDefaultAsync(u => u.Email.Equals(email));
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+            return usuario;
+        }
+
         // PUT: api/Usuarios/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUsuario(int id, Usuario usuario)

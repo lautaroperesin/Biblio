@@ -75,13 +75,8 @@ namespace BiblioTest
 
         private async Task LoginTest()
         {
-            // Construimos la configuración para pasarsela a AuthService
-            var config = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json")
-                .Build();
-
             // Primero nos autenticamos para obtener el token
-            var serviceAuth = new AuthService(config);
+            var serviceAuth = new AuthService();
             var token = await serviceAuth.Login(new LoginDTO
             {
                 Username = "lautiperesin@gmail.com",

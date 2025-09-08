@@ -17,5 +17,10 @@ namespace Service.Models
         public DateTime FechaDevolucion { get; set; } = DateTime.Now;
         public bool isDeleted { get; set; } = false;
 
+        public override string ToString()
+        {
+            return $"{Ejemplar.Libro.Titulo} - {FechaPrestamo.ToShortDateString()} - {FechaDevolucion.ToShortDateString()}";
+        }
+
     }
 }

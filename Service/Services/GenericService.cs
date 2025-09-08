@@ -22,7 +22,7 @@ namespace Service.Services
         {
             _httpClient = httpClient ?? new HttpClient();
             _options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            _endpoint = Properties.Resources.urlApiLocal + ApiEndpoints.GetEndpoint(typeof(T).Name);
+            _endpoint = Properties.Resources.urlApi + ApiEndpoints.GetEndpoint(typeof(T).Name);
 
             if(!string.IsNullOrEmpty(GenericService<object>.token))
             {

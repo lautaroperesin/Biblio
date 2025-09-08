@@ -63,9 +63,9 @@ namespace Service.Properties {
         /// <summary>
         ///   Busca una cadena traducida similar a https://localhost:7000/api/.
         /// </summary>
-        public static string urlApiLocal {
+        public static string urlApi {
             get {
-                return ResourceManager.GetString("urlApiLocal", resourceCulture);
+                return ResourceManager.GetString("urlApi", resourceCulture);
             }
         }
     }
