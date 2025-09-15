@@ -6,17 +6,18 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Service.DTOs;
+using Service.Interfaces;
 using Service.Utils;
 
 namespace Service.Services
 {
-    public class AuthService
+    public class AuthService : IAuthService
     {
         public AuthService()
         {
         }
 
-        public async Task<string?> Login(LoginDTO? login)
+        public async Task<bool> Login(LoginDTO? login)
         {
             if (login == null)
             {
@@ -33,11 +34,12 @@ namespace Service.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var result = await response.Content.ReadAsStringAsync();
-                    return result;
+                    GenericService<object>.token = result;
+                    return true;
                 }
                 else
                 {
-                    return null;
+                    return false;
                 }
             }
             catch (Exception ex)

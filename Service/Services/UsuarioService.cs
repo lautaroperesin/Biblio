@@ -16,34 +16,28 @@ namespace Service.Services
 {
     public class UsuarioService : GenericService<Usuario>, IUsuarioService
     {
-        private readonly HttpClient _httpClient;
-        private readonly string _endpoint;
-        protected readonly JsonSerializerOptions _options;
-        public static string? token;
-        public UsuarioService(HttpClient? httpClient=null)
+        public UsuarioService(HttpClient? httpClient = null) : base(httpClient)
         {
-            httpClient = httpClient ?? new HttpClient();
-            _options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            _endpoint = Properties.Resources.urlApi + ApiEndpoints.GetEndpoint(typeof(Usuario).Name);
 
-            if (!string.IsNullOrEmpty(GenericService<object>.token))
-            {
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", GenericService<object>.token);
-            }
-            else
-            {
-                throw new Exception(token);
-            }
         }
+
         public async Task<Usuario?> GetByEmailAsync(string email)
         {
-            var response = await _httpClient.GetAsync($"{_endpoint}/byemail?email={email}");
-            var content = await response.Content.ReadAsStringAsync();
-            if (!response.IsSuccessStatusCode)
+            SetAuthorizationHeader();
+            try
             {
-                throw new Exception($"Error al obtener el usuario por email: {response.StatusCode} - {content}");
+                var response = await _httpClient.GetAsync($"{_endpoint}/byemail?email={email}");
+                var content = await response.Content.ReadAsStringAsync();
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception($"Error al obtener el usuario por email: {response.StatusCode} - {content}");
+                }
+                return JsonSerializer.Deserialize<Usuario>(content, _options);
             }
-            return JsonSerializer.Deserialize<Usuario>(content, _options);
+            catch(Exception ex)
+            {
+                throw new Exception($"Error en UsuarioService al obtener por email: {ex.Message}");
+            }
         }
     }
 }

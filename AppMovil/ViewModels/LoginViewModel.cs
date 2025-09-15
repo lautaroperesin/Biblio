@@ -11,8 +11,8 @@ namespace AppMovil.ViewModels
 {
     public partial class LoginViewModel : ObservableObject
     {
-        AuthService _authService = new AuthService();
-        UsuarioService _usuarioService = new UsuarioService();
+        AuthService _authService;
+        UsuarioService _usuarioService;
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(LoginCommand))]
@@ -27,12 +27,14 @@ namespace AppMovil.ViewModels
         private bool isBusy;
 
         [ObservableProperty]
-        private string _errorMessage = string.Empty;
+        private string errorMessage = string.Empty;
 
         public IRelayCommand LoginCommand { get; }
 
         public LoginViewModel()
         {
+            _authService = new AuthService();
+            _usuarioService = new UsuarioService();
             LoginCommand = new RelayCommand(OnLogin, CanLogin);
         }
 
@@ -58,13 +60,21 @@ namespace AppMovil.ViewModels
                     Password = Password
                 });
 
-                if (string.IsNullOrEmpty(response))
+                if (!response)
                 {
-                    ErrorMessage = "Usuario o contraseña incorrectos.";
+                    ErrorMessage = "Credenciales inválidas. Intente nuevamente.";
                     return;
                 }
 
                 var usuario = await _usuarioService.GetByEmailAsync(username);
+
+                if (usuario == null)
+                {
+                    ErrorMessage = "No se pudo obtener la información del usuario.";
+                    return;
+                }
+
+                Preferences.Set("UserLoginId", usuario.Id);
 
                 if (Application.Current?.MainPage is AppShell shell)
                 {
@@ -78,6 +88,16 @@ namespace AppMovil.ViewModels
             finally
             {
                 IsBusy = false;
+            }
+        }
+
+        partial void OnErrorMessageChanged(string? oldValue, string newValue)
+        {
+            if (!string.IsNullOrEmpty(newValue))
+            {
+                // Aquí puedes implementar lógica adicional si es necesario
+                // Por ejemplo, mostrar una alerta o notificación
+                Application.Current?.MainPage?.DisplayAlert("Error de inicio de sesión", newValue, "OK");
             }
         }
     }

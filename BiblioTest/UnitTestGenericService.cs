@@ -190,8 +190,6 @@ namespace BiblioTest
                 Username = "lautiperesin@gmail.com",
                 Password = "1234lauti"
             });
-
-            GenericService<object>.token = token;
         }
     }
 }

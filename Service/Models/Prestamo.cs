@@ -14,12 +14,12 @@ namespace Service.Models
         public int EjemplarId { get; set; }
         public Ejemplar? Ejemplar { get; set; }
         public DateTime FechaPrestamo { get; set; } = DateTime.Now;
-        public DateTime FechaDevolucion { get; set; } = DateTime.Now;
+        public DateTime? FechaDevolucion { get; set; }
         public bool isDeleted { get; set; } = false;
 
         public override string ToString()
         {
-            return $"{Ejemplar.Libro.Titulo} - {FechaPrestamo.ToShortDateString()} - {FechaDevolucion.ToShortDateString()}";
+            return $"{Ejemplar.Libro.Titulo} - {FechaPrestamo.ToShortDateString()} - {FechaDevolucion?.ToShortDateString()}";
         }
 
     }

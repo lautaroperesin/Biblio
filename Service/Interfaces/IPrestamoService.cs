@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Service.DTOs;
+using Service.Models;
 
 namespace Service.Interfaces
 {
-    public interface IAuthService
+    public interface IPrestamoService : IGenericService<Prestamo>
     {
-        Task<bool> Login(LoginDTO login);
+        public Task<List<Prestamo>?> GetByUsuarioAsync(int idUsuario);
     }
 }

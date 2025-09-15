@@ -11,5 +11,6 @@
         <Entry Placeholder="Usuario" Text="{Binding Username}"/>
         <Entry Placeholder="Contrasena" IsPassword="True" Text="{Binding Password}"/>
         <Button Text="Ingresar" Command="{Binding LoginCommand}"/>
+        <ActivityIndicator IsRunning="{Binding IsBusy}"/>
     </StackLayout>
 </ContentPage>

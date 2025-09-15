@@ -24,16 +24,13 @@ namespace Backend.Controllers
 
         // GET: api/Prestamos
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Prestamo>>> GetPrestamos([FromQuery] int? usuarioId = null, [FromQuery] int? ejemplarId = null, [FromQuery] bool? activos = null)
+        public async Task<ActionResult<IEnumerable<Prestamo>>> GetPrestamos()
         {
-            var query = _context.Prestamos.AsNoTracking();
-            if (usuarioId.HasValue)
-                query = query.Where(p => p.UsuarioId == usuarioId);
-            if (ejemplarId.HasValue)
-                query = query.Where(p => p.EjemplarId == ejemplarId);
-            if (activos.HasValue && activos.Value)
-                query = query.Where(p => p.FechaDevolucion > DateTime.Now);
-            return await query.ToListAsync();
+            return await _context.Prestamos
+                .Include(p => p.Ejemplar)
+                .ThenInclude(e => e.Libro)
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         [HttpGet("deleteds")]
@@ -46,12 +43,35 @@ namespace Backend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Prestamo>> GetPrestamo(int id)
         {
-            var prestamo = await _context.Prestamos.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
+            var prestamo = await _context.Prestamos
+                .Include(p => p.Ejemplar)
+                .ThenInclude(e => e.Libro)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == id);
             if (prestamo == null)
             {
                 return NotFound();
             }
             return prestamo;
+        }
+
+        // GET: byemail
+        [HttpGet("byusuario")]
+        public async Task<ActionResult<List<Prestamo>?>> GetByUsuario([FromQuery] int? idusuario = 0)
+        {
+            if(idusuario == 0)
+            {
+                return BadRequest("Id de usuario inválido");
+            }
+
+            var prestamos = await _context.Prestamos
+                .Include(p => p.Ejemplar)
+                .ThenInclude(e => e.Libro)
+                .AsNoTracking()
+                .Where(p => p.UsuarioId == idusuario)
+                .ToListAsync();
+
+            return prestamos;
         }
 
         // PUT: api/Prestamos/5
