@@ -18,10 +18,11 @@ namespace AppMovil.ViewModels
         [ObservableProperty]
         private string mensajeVacio = "No tienes préstamos activos";
 
-        public bool TienePrestamos => Prestamos.Count > 0;
+        [ObservableProperty]
+        private ObservableCollection<Prestamo> prestamosVigentes = new();
 
         [ObservableProperty]
-        private ObservableCollection<Prestamo> prestamos = new();
+        private ObservableCollection<Prestamo> prestamosHistoricos = new();
         public IRelayCommand GetAllCommand { get; }
 
         private int _idUserLogin;
@@ -46,7 +47,8 @@ namespace AppMovil.ViewModels
             {
                 IsBusy = true;
                 var prestamos = await _prestamoService.GetByUsuarioAsync(_idUserLogin);
-                Prestamos = new ObservableCollection<Prestamo>(prestamos ?? new List<Prestamo>());
+                PrestamosVigentes = new ObservableCollection<Prestamo>(prestamos?.Where(p=>p.FechaDevolucion.Equals(null)) ?? new List<Prestamo>());
+                PrestamosHistoricos = new ObservableCollection<Prestamo>(prestamos?.Where(p => p.FechaDevolucion != null) ?? new List<Prestamo>());
             }
             finally
             {
