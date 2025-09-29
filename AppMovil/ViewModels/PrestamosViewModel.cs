@@ -1,17 +1,18 @@
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Service.Models;
 using Service.Services;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Windows.Input;
 
 namespace AppMovil.ViewModels
 {
     public partial class PrestamosViewModel : ObservableObject
     {
         PrestamoService _prestamoService = new();
+
         [ObservableProperty]
         private bool isBusy;
 
@@ -23,6 +24,7 @@ namespace AppMovil.ViewModels
 
         [ObservableProperty]
         private ObservableCollection<Prestamo> prestamosHistoricos = new();
+
         public IRelayCommand GetAllCommand { get; }
 
         private int _idUserLogin;
@@ -31,10 +33,10 @@ namespace AppMovil.ViewModels
         {
             GetAllCommand = new RelayCommand(OnGetAll);
             _idUserLogin = Preferences.Get("UserLoginId", 0);
-            InicializarAsync();
+            _ = InicializeAsync();
         }
 
-        private async Task InicializarAsync()
+        private async Task InicializeAsync()
         {
             OnGetAll();
         }
@@ -47,7 +49,8 @@ namespace AppMovil.ViewModels
             {
                 IsBusy = true;
                 var prestamos = await _prestamoService.GetByUsuarioAsync(_idUserLogin);
-                PrestamosVigentes = new ObservableCollection<Prestamo>(prestamos?.Where(p=>p.FechaDevolucion.Equals(null)) ?? new List<Prestamo>());
+                PrestamosVigentes = new ObservableCollection<Prestamo>(prestamos?.Where(p => p.FechaDevolucion.Equals(null)) ?? new List<Prestamo>());
+
                 PrestamosHistoricos = new ObservableCollection<Prestamo>(prestamos?.Where(p => p.FechaDevolucion != null) ?? new List<Prestamo>());
             }
             finally

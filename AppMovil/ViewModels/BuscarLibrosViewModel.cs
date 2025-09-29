@@ -1,12 +1,13 @@
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Service.DTOs;
 using Service.Models;
 using Service.Services;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace AppMovil.ViewModels
 {
@@ -60,7 +61,7 @@ namespace AppMovil.ViewModels
 
         partial void OnSearchTextChanged(string value)
         {
-            if (string.IsNullOrEmpty(value)) OnBuscar();
+            //if (string.IsNullOrEmpty(value)) OnBuscar();
         }
 
         // Los cambios en filtros también disparan nueva búsqueda
@@ -79,22 +80,27 @@ namespace AppMovil.ViewModels
 
                 FilterLibroDTO filtro = new()
                 {
-                    SearchText = SearchText,
-                    ForTitulo = FiltrarPorTitulo,
-                    ForAutor = FiltrarPorAutor,
-                    ForEditorial = FiltrarPorEditorial,
-                    ForGenero = FiltrarPorGenero
+                    SearchText = this.SearchText,
+                    ForTitulo = this.FiltrarPorTitulo,
+                    ForAutor = this.FiltrarPorAutor,
+                    ForEditorial = this.FiltrarPorEditorial,
+                    ForGenero = this.FiltrarPorGenero
                 };
-
                 var librosFiltrados = await _libroService.GetWithFilterAsync(filtro);
 
-                Libros = new ObservableCollection<Libro>(librosFiltrados);
+                Libros = librosFiltrados != null ? new ObservableCollection<Libro>(librosFiltrados)
+                    : new ObservableCollection<Libro>();
+
+                //_libroService.GetWithFilterAsync(filtro);
+
+                //Libros = new ObservableCollection<Libro>(librosFiltrados);
             }
             finally
             {
                 IsBusy = false;
             }
         }
+
 
         private void OnLimpiar()
         {

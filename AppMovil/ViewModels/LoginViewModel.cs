@@ -1,11 +1,10 @@
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
-using Service.DTOs;
+using Microsoft.Extensions.Configuration;
+using Service.Interfaces;
 using Service.Services;
+using Service.DTOs;
 
 namespace AppMovil.ViewModels
 {
@@ -30,18 +29,40 @@ namespace AppMovil.ViewModels
         private string errorMessage = string.Empty;
 
         public IRelayCommand LoginCommand { get; }
+        public IRelayCommand ForgotPasswordCommand { get; }
+        public IRelayCommand RegisterCommand { get; }
 
         public LoginViewModel()
         {
             _authService = new AuthService();
             _usuarioService = new UsuarioService();
             LoginCommand = new RelayCommand(OnLogin, CanLogin);
+            ForgotPasswordCommand = new RelayCommand(OnForgotPassword);
+            RegisterCommand = new RelayCommand(OnRegister);
+        }
+
+        private void OnRegister()
+        {
+            if (Application.Current?.MainPage is AppShell shell)
+            {
+                shell.ViewModel.RegisterVisible = true;
+                shell.SetLoginState(false);
+            }
+        }
+
+        private async void OnForgotPassword()
+        {
+            if (Application.Current?.MainPage is AppShell shell)
+            {
+                shell.ViewModel.ResetPasswordVisible = true;
+                shell.SetLoginState(false);
+            }
         }
 
         private bool CanLogin()
         {
-            return !IsBusy && 
-                   !string.IsNullOrWhiteSpace(Username) && 
+            return !IsBusy &&
+                   !string.IsNullOrWhiteSpace(Username) &&
                    !string.IsNullOrWhiteSpace(Password);
         }
 
@@ -60,22 +81,23 @@ namespace AppMovil.ViewModels
                     Password = Password
                 });
 
-                if (!response)
+                if (response != null)
                 {
-                    ErrorMessage = "Credenciales inválidas. Intente nuevamente.";
+                    // Si la respuesta no es null, significa que hubo un error
+                    ErrorMessage = response;
                     return;
                 }
 
                 var usuario = await _usuarioService.GetByEmailAsync(username);
-
                 if (usuario == null)
                 {
                     ErrorMessage = "No se pudo obtener la información del usuario.";
                     return;
                 }
-
                 Preferences.Set("UserLoginId", usuario.Id);
 
+                // PERMITE CUALQUIER USUARIO/CONTRASEÑA durante desarrollo
+                // Solo requiere que no estén vacíos
                 if (Application.Current?.MainPage is AppShell shell)
                 {
                     shell.SetLoginState(true);
@@ -95,9 +117,8 @@ namespace AppMovil.ViewModels
         {
             if (!string.IsNullOrEmpty(newValue))
             {
-                // Aquí puedes implementar lógica adicional si es necesario
-                // Por ejemplo, mostrar una alerta o notificación
-                Application.Current?.MainPage?.DisplayAlert("Error de inicio de sesión", newValue, "OK");
+                // Mostrar una alerta cuando ErrorMessage cambie a un valor no vacío
+                Application.Current?.MainPage?.DisplayAlert("Error de Login", newValue, "OK");
             }
         }
     }

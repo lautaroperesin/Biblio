@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
-namespace Service.ExtentionMethods
+namespace Service.ExtensionMethods
 {
     public static class MyExtensions
     {

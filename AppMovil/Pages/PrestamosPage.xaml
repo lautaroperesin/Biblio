@@ -1,20 +1,21 @@
 ﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:AppMovil.ViewModels"
-             x:Class="AppMovil.PrestamosPage"
+             x:Class="AppMovil.Pages.PrestamosPage"
              Title="Prestamos">
     <ContentPage.BindingContext>
         <viewModels:PrestamosViewModel />
     </ContentPage.BindingContext>
-  <ScrollView Padding="20">
+
+    <ScrollView Padding="20">
         <StackLayout Spacing="25">
-            
+
             <!-- Indicador de carga -->
             <ActivityIndicator IsVisible="{Binding IsBusy}" 
                               IsRunning="{Binding IsBusy}"
                               Color="DodgerBlue"
                               VerticalOptions="Center"/>
-            
+
             <!-- Sección Préstamos Vigentes -->
             <StackLayout Spacing="15">
                 <!-- Encabezado Préstamos Vigentes -->
@@ -41,7 +42,7 @@
                                    HasShadow="True"
                                    BorderColor="LightGreen">
                                 <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto, Auto">
-                                    
+
                                     <!-- Título del libro -->
                                     <Label Grid.Column="0" Grid.Row="0"
                                            Text="{Binding Ejemplar.Libro.Titulo}" 
@@ -49,7 +50,7 @@
                                            FontAttributes="Bold"
                                            TextColor="Black"
                                            LineBreakMode="WordWrap"/>
-                                    
+
                                     <!-- Estado -->
                                     <Label Grid.Column="1" Grid.Row="0"
                                            Text="🔄 Activo" 
@@ -57,14 +58,14 @@
                                            TextColor="Orange"
                                            FontAttributes="Bold"
                                            VerticalOptions="Start"/>
-                                    
+
                                     <!-- Fecha de préstamo -->
                                     <Label Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
                                            Text="{Binding FechaPrestamo, StringFormat='Prestado el: {0:dd/MM/yyyy}'}" 
                                            FontSize="14"
                                            TextColor="Gray"
                                            Margin="0,5,0,0"/>
-                                    
+
                                     <!-- Línea separadora -->
                                     <BoxView Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2"
                                              HeightRequest="1" 
@@ -76,7 +77,8 @@
                     </CollectionView.ItemTemplate>
                 </CollectionView>
 
-                <!-- Mensaje cuando no hay préstamos vigentes --><!--
+                <!-- Mensaje cuando no hay préstamos vigentes -->
+                <!--
                 <Frame BackgroundColor="LightYellow"
                        Padding="20"
                        CornerRadius="10"
@@ -128,7 +130,7 @@
                                    HasShadow="True"
                                    BorderColor="LightBlue">
                                 <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto, Auto, Auto">
-                                    
+
                                     <!-- Título del libro -->
                                     <Label Grid.Column="0" Grid.Row="0"
                                            Text="{Binding Ejemplar.Libro.Titulo}" 
@@ -136,7 +138,7 @@
                                            FontAttributes="Bold"
                                            TextColor="Black"
                                            LineBreakMode="WordWrap"/>
-                                    
+
                                     <!-- Estado -->
                                     <Label Grid.Column="1" Grid.Row="0"
                                            Text="✅ Devuelto" 
@@ -144,21 +146,21 @@
                                            TextColor="Green"
                                            FontAttributes="Bold"
                                            VerticalOptions="Start"/>
-                                    
+
                                     <!-- Fecha de préstamo -->
                                     <Label Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
                                            Text="{Binding FechaPrestamo, StringFormat='Prestado el: {0:dd/MM/yyyy}'}" 
                                            FontSize="14"
                                            TextColor="Gray"
                                            Margin="0,5,0,0"/>
-                                    
+
                                     <!-- Fecha de devolución -->
                                     <Label Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2"
                                            Text="{Binding FechaDevolucion, StringFormat='Devuelto el: {0:dd/MM/yyyy}'}" 
                                            FontSize="14"
                                            TextColor="Green"
                                            FontAttributes="Bold"/>
-                                    
+
                                     <!-- Línea separadora -->
                                     <BoxView Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2"
                                              HeightRequest="1" 
@@ -170,7 +172,8 @@
                     </CollectionView.ItemTemplate>
                 </CollectionView>
 
-                <!-- Mensaje cuando no hay préstamos históricos --><!--
+                <!-- Mensaje cuando no hay préstamos históricos -->
+                <!--
                 <Frame BackgroundColor="LightGray"
                        Padding="20"
                        CornerRadius="10"

@@ -1,6 +1,6 @@
 using Microsoft.Maui.Controls;
 
-namespace AppMovil
+namespace AppMovil.Pages
 {
     public partial class BuscarLibrosPage : ContentPage
     {

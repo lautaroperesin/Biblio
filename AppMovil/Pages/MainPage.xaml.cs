@@ -1,6 +1,6 @@
 ﻿using AppMovil.ViewModels;
 
-namespace AppMovil
+namespace AppMovil.Pages
 {
     public partial class MainPage : ContentPage
     {
