@@ -52,13 +52,6 @@
             Route="PrestamosPage" />
     </FlyoutItem>
 
-    <FlyoutItem Title="↩️ Devoluciones" Icon="return.png" IsVisible="{Binding MenuVisible}">
-        <ShellContent
-            Title="Devoluciones"
-            ContentTemplate="{DataTemplate local:DevolucionesPage}"
-            Route="DevolucionesPage" />
-    </FlyoutItem>
-
     <!-- Footer del Flyout con opción de logout -->
     <Shell.FlyoutFooter>
         <StackLayout IsVisible="{Binding MenuVisible}" BackgroundColor="#F5F5F5" Padding="10">

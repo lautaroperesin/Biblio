@@ -29,18 +29,38 @@ namespace Backend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Libro>>> GetLibros([FromQuery] string filtro = "")
         {
-            var query = _context.Libros.Include(l => l.Editorial).AsNoTracking().Where(l => l.Titulo.ToUpper().Contains(filtro.ToUpper()));
+            var query = _context.Libros
+                .Include(l => l.Editorial)
+                .Include(l => l.LibrosAutores).ThenInclude(la => la.Autor)
+                .Include(l => l.LibrosGeneros).ThenInclude(lg => lg.Genero)
+                .AsNoTracking().Where(l => l.Titulo.ToUpper().Contains(filtro.ToUpper()));
+
             return await query.ToListAsync();
         }
 
         [HttpPost("withfilter")]
         public async Task<ActionResult<IEnumerable<Libro>>> GetLibros(FilterLibroDTO filter)
         {
-            return await _context.Libros.Include(l => l.Editorial)
+            var query = _context.Libros
+                .Include(l => l.Editorial)
+                .Include(l => l.LibrosAutores).ThenInclude(la => la.Autor)
+                .Include(l => l.LibrosGeneros).ThenInclude(lg => lg.Genero)
                 .AsNoTracking()
-                .Where(l => l.Titulo.Contains(filter.SearchText) || 
-                l.Editorial.Nombre.Contains(filter.SearchText))
-                .ToListAsync();
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(filter.SearchText))
+            {
+                var search = filter.SearchText;
+
+                query = query.Where(l =>
+                   (filter.ForTitulo && l.Titulo.ToLower().Contains(search)) ||
+                   (filter.ForAutor && l.LibrosAutores.Any(la => la.Autor.Nombre.ToLower().Contains(search))) ||
+                   (filter.ForEditorial && l.Editorial.Nombre.ToLower().Contains(search)) ||
+                   (filter.ForGenero && l.LibrosGeneros.Any(lg => lg.Genero.Nombre.ToLower().Contains(search)))
+               );
+            }
+
+            return await query.ToListAsync();
         }
 
         [HttpGet("deleteds")]

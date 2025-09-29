@@ -25,8 +25,8 @@ namespace Service.Models
         public Editorial? Editorial { get; set; }
         public bool isDeleted { get; set; } = false;
 
-        virtual public ICollection<Autor> Autores { get; set; } = new List<Autor>();
-        virtual public ICollection<Genero> Generos { get; set; } = new List<Genero>();
+        virtual public ICollection<LibroAutor> LibrosAutores { get; set; } = new List<LibroAutor>();
+        virtual public ICollection<LibroGenero> LibrosGeneros { get; set; } = new List<LibroGenero>();
 
         public override string ToString()
         {

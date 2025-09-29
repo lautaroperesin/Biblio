@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Service.DTOs;
 using Service.Models;
 using Service.Services;
 
@@ -11,7 +12,7 @@ namespace AppMovil.ViewModels
 {
     public partial class BuscarLibrosViewModel : ObservableObject
     {
-        GenericService<Libro> _libroService = new GenericService<Libro>();
+        LibroService _libroService = new();
 
         [ObservableProperty]
         private string searchText = string.Empty;
@@ -63,10 +64,10 @@ namespace AppMovil.ViewModels
         }
 
         // Los cambios en filtros también disparan nueva búsqueda
-        partial void OnFiltrarPorTituloChanged(bool value) => OnBuscar();
-        partial void OnFiltrarPorAutorChanged(bool value) => OnBuscar();
-        partial void OnFiltrarPorEditorialChanged(bool value) => OnBuscar();
-        partial void OnFiltrarPorGeneroChanged(bool value) => OnBuscar();
+        //partial void OnFiltrarPorTituloChanged(bool value) => OnBuscar();
+        //partial void OnFiltrarPorAutorChanged(bool value) => OnBuscar();
+        //partial void OnFiltrarPorEditorialChanged(bool value) => OnBuscar();
+        //partial void OnFiltrarPorGeneroChanged(bool value) => OnBuscar();
 
         private async void OnBuscar()
         {
@@ -76,15 +77,16 @@ namespace AppMovil.ViewModels
             {
                 IsBusy = true;
 
-                // Obtener todos los libros si no los tenemos
-                if (!_todosLosLibros.Any())
+                FilterLibroDTO filtro = new()
                 {
-                    var todosLibros = await _libroService.GetAllAsync("");
-                    _todosLosLibros = todosLibros?.ToList() ?? new List<Libro>();
-                }
+                    SearchText = SearchText,
+                    ForTitulo = FiltrarPorTitulo,
+                    ForAutor = FiltrarPorAutor,
+                    ForEditorial = FiltrarPorEditorial,
+                    ForGenero = FiltrarPorGenero
+                };
 
-                // Filtrar según el texto de búsqueda y los filtros seleccionados
-                var librosFiltrados = FiltrarLibros(_todosLosLibros);
+                var librosFiltrados = await _libroService.GetWithFilterAsync(filtro);
 
                 Libros = new ObservableCollection<Libro>(librosFiltrados);
             }

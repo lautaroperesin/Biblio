@@ -55,6 +55,15 @@
                     </Frame>
 
                     <!-- Botón para mostrar/ocultar filtros -->
+                    <Button Text="🔍 Buscar" 
+                          Command="{Binding BuscarCommand}"
+                          BackgroundColor="LightSteelBlue"
+                          TextColor="DarkBlue"
+                          CornerRadius="8"
+                          FontSize="14"/>
+
+
+                    <!-- Botón para mostrar/ocultar filtros -->
                     <Button Text="⚙️ Filtros de búsqueda" 
                             Command="{Binding ToggleFiltrosCommand}"
                             BackgroundColor="LightSteelBlue"
