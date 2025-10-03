@@ -16,7 +16,6 @@ namespace WebBlazor.Services
 
         public async Task<UserInfo?> SignInWithEmailPassword(string email, string password, bool rememberPassword)
         {
-            // Ingresar el usuario y contraseña en Firebase
             var user = await _jsRuntime.InvokeAsync<UserInfo?>("firebaseAuth.signInWithEmailPassword", email, password, rememberPassword);
             if (user != null)
             {
