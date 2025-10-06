@@ -1,4 +1,6 @@
-﻿namespace Service.Models.InstitutoApp
+﻿using InstitutoServices.Models.Commons;
+
+namespace Service.Models.InstitutoApp
 {
     public class Usuario
     {

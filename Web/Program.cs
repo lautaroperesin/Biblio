@@ -1,10 +1,13 @@
+using CurrieTechnologies.Razor.SweetAlert2;
 using Web.Components;
+using WebBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+builder.Services.AddScoped<FirebaseAuthService>();
+builder.Services.AddSweetAlert2();
 
 var app = builder.Build();
 

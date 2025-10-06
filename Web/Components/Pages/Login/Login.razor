@@ -1,0 +1,145 @@
+﻿@page "/login"
+@inject FirebaseAuthService _firebaseAuthService
+@inject SweetAlertService _sweetAlert
+@inject NavigationManager _navigationManager
+@rendermode InteractiveServer
+
+
+@if (!isAuthenticated)
+{
+    <div class="card text-center">
+        <div class="card-header">
+            Iniciar sesión
+        </div>
+        <div class="card-body">
+            <h3 class="card-title">Bienvenido a Biblio</h3>
+            <div class="container">
+                <div class="row mb-3">
+                    <div class="col-md-12 d-flex justify-content-center align-items-center">
+                        <label class="form-label me-2">Correo electrónico:</label>
+                        <InputText class="form-control w-50" @bind-Value="email" placeholder="usuario@gmail.com" />
+                        
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12 d-flex justify-content-center align-items-center">
+                        <label class="form-label me-2">Contraseña:</label>
+                        <InputText class="form-control w-50" @bind-Value="password" placeholder="Contraseña" type="password" />
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12 d-flex justify-content-center align-items-center">
+                        <label class="form-check-label me-2">Recordar contraseña:</label>
+                        <InputCheckbox class="form-check w-50" @bind-Value="rememberPassword" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 d-flex justify-content-center">
+                        <button class="btn btn-primary mb-3" @onclick="Loguear">Acceder</button>
+                    </div>
+                    <div class="col-md-12 d-flex justify-content-center">
+                        <button class="btn btn-secondary" @onclick="RegisterMe">Registrarme</button>
+                    </div>
+                    <div class="col-md-12 d-flex justify-content-center">
+                        <button class="btn btn-secondary" @onclick="LoginWithGoogle">Google</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer text-body-secondary">
+            Desarrollo 3er año - TSDS - 2025
+        </div>
+    </div>
+}
+else
+{
+    <div class="card text-center">
+        <div class="card-header">
+            Cerrar sesión
+        </div>
+        <div class="card-body">
+            <p class="card-header">Cerrar sesión de Biblio</p>
+
+            <button class="btn btn-primary" @onclick="Desloguear">Cerrar sesión</button>
+        </div>
+        <div class="card-footer text-body-secondary">
+            Desarrollo 3er año - TSDS - 2025
+        </div>
+    </div>
+}
+
+@code {
+
+
+
+    bool isAuthenticated = false;
+    string email = string.Empty;
+    string password = string.Empty;
+    bool rememberPassword = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            isAuthenticated = await _firebaseAuthService.IsUserAuthenticated();
+            StateHasChanged();
+        }
+    }
+
+    private async Task Loguear()
+    {
+        Console.WriteLine("Logueandose>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        var user = await _firebaseAuthService.SignInWithEmailPassword(email, password, rememberPassword);
+        if (user != null)
+        {
+            if(user.EmailVerified == false)
+            {
+
+                Console.WriteLine("Verificación de correo");
+                await _sweetAlert.FireAsync("Verificación de correo", "Por favor, verifica tu correo electrónico antes de iniciar sesión.", SweetAlertIcon.Warning);
+                return;
+            }
+            isAuthenticated = true;
+            StateHasChanged();
+            // Aquí podrías redirigir al usuario a otra página si es necesario
+        }
+        else
+        {
+            // Manejar error de autenticación (mostrar mensaje, etc.)
+            await _sweetAlert.FireAsync("Error de autenticación", "Correo o contraseña incorrectos.", SweetAlertIcon.Error);
+        }
+        
+    }
+
+    private async Task Desloguear()
+    {
+        isAuthenticated = false;
+        email = string.Empty;
+        password = string.Empty;
+        await _firebaseAuthService.SignOut();
+        StateHasChanged();
+    }
+
+    private async Task RegisterMe()
+    {
+        _navigationManager.NavigateTo("/signin");
+        
+    }
+    private async Task LoginWithGoogle()
+    {
+        var user = await _firebaseAuthService.LoginWithGoogle();
+        if (user != null)
+        {
+            isAuthenticated = true;
+            StateHasChanged();
+            // Aquí podrías redirigir al usuario a otra página si es necesario
+        }
+        else
+        {
+            // Manejar error de autenticación (mostrar mensaje, etc.)
+            await _sweetAlert.FireAsync("Error de autenticación", "No se pudo iniciar sesión con Google.", SweetAlertIcon.Error);
+        }
+    }
+
+
+}
