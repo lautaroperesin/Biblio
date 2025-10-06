@@ -1,0 +1,19 @@
+﻿<div class="card results-header">
+	<h3>📚 Resultados de búsqueda</h3>
+	<p class="result-count">@($"{CantidadResultados} {TextoResultado}")</p>
+
+	@if (CantidadResultados == 0)
+	{
+		<div class="no-results card">
+			<h4>🤔 Sin resultados</h4>
+			<p>Intenta con otros términos de búsqueda o ajusta los filtros</p>
+		</div>
+	}
+</div>
+
+@code {
+	[Parameter]
+	public int CantidadResultados { get; set; } = 0;
+	[Parameter]
+	public string TextoResultado { get; set; } = "Texto no definido";
+}

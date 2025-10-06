@@ -43,6 +43,9 @@
                     <div class="col-md-12 d-flex justify-content-center">
                         <button class="btn btn-secondary" @onclick="LoginWithGoogle">Google</button>
                     </div>
+                    <div class="col-md-12 d-flex justify-content-center">
+                        <button class="btn btn-secondary" @onclick="RecoveryPassword">Recuperar contraseña</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -141,5 +144,8 @@ else
         }
     }
 
-
+    private void RecoveryPassword()
+    {
+        _navigationManager.NavigateTo("/recovery");
+	}
 }

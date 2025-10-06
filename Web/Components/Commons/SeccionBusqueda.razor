@@ -1,0 +1,79 @@
+﻿<div class="card search-card">
+        <label class="section-title">¿Qué libro estás buscando?</label>
+
+        <div class="search-row">
+            <input class="search-input" placeholder="Buscar por título, autor, editorial..." @bind="SearchText" />
+        <button class="btn btn-primary search-button" @onclick="HandleBuscar">🔍<br />Buscar</button>
+        </div>
+
+        <button class="btn btn-light filters-toggle" @onclick="ToggleFiltros">⚙️ Filtros de búsqueda</button>
+
+        @if (MostrarFiltros)
+        {
+            <div class="filters-panel">
+                <label class="filters-title">🔎 Buscar en:</label>
+                <div class="filters-grid">
+                    <label><input type="checkbox" @bind="FiltrarPorTitulo" /> 📖 Título</label>
+                    <label><input type="checkbox" @bind="FiltrarPorAutor" /> ✍️ Autor</label>
+                    <label><input type="checkbox" @bind="FiltrarPorEditorial" /> 🏢 Editorial</label>
+                    <label><input type="checkbox" @bind="FiltrarPorGenero" /> 🎭 Género</label>
+                </div>
+
+                <div class="filters-actions">
+                    <button class="btn btn-warning" @onclick="Limpiar">🗑️ Limpiar búsqueda</button>
+                </div>
+            </div>
+        }
+    <!-- Indicador de carga -->
+    @if (IsBusy)
+    {
+        <div class="loading-row">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <span class="loading-text">Buscando libros...</span>
+        </div>
+    }
+</div>
+@code {
+    [Parameter]
+    public List<Libro> Libros { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<FilterLibroDTO> OnBuscar { get; set; }
+
+    private string SearchText { get; set; } = string.Empty;
+    private bool FiltrarPorTitulo { get; set; } = false;
+    private bool FiltrarPorAutor { get; set; } = false;
+    private bool FiltrarPorEditorial { get; set; } = false;
+    private bool FiltrarPorGenero { get; set; } = false;
+    private bool MostrarFiltros { get; set; } = false;
+    private bool IsBusy { get; set; } = false;
+
+    private void ToggleFiltros() => MostrarFiltros = !MostrarFiltros;
+
+    private async Task Limpiar()
+    {
+        SearchText = string.Empty;
+        FiltrarPorTitulo = false;
+        FiltrarPorAutor = false;
+        FiltrarPorEditorial = false;
+        FiltrarPorGenero = false;
+		await HandleBuscar();
+    }
+
+    private async Task HandleBuscar()
+    {
+        var filtro = new FilterLibroDTO
+            {
+                SearchText = SearchText,
+                ForTitulo = FiltrarPorTitulo,
+                ForAutor = FiltrarPorAutor,
+                ForEditorial = FiltrarPorEditorial,
+                ForGenero = FiltrarPorGenero
+            };
+        IsBusy = true;
+        await OnBuscar.InvokeAsync(filtro);
+        IsBusy = false;
+    }
+}

@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Components\Pages\Login\" />
+    <Folder Include="Components\Admin\" />
   </ItemGroup>
 
 </Project>

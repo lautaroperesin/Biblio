@@ -1,0 +1,27 @@
+﻿<div class="card libro-card">
+    <div class="libro-main">
+        <div class="libro-icon">📚</div>
+        <div class="libro-body">
+            <div class="libro-title">@libro.Titulo</div>
+
+            <div class="libro-meta">
+                <div class="meta-item">✍️ <span>@libro.Autores</span></div>
+                <div class="meta-item">🏷️ <span>@libro.Generos</span></div>
+                <div class="meta-item">🏢 <span>Editorial: @libro.Editorial?.Nombre</span></div>
+                <div class="meta-item">📅 <span>Año: @libro.AnioPublicacion</span></div>
+                <div class="meta-item">📄 <span>Páginas: @libro.Paginas</span></div>
+            </div>
+
+            <div class="libro-desc">@libro.Descripcion</div>
+        </div>
+
+        <div class="libro-actions">
+            @* <button class="btn btn-outline-info details-button" @onclick="() => VerDetalles(libro.Id)">📖<br />Ver<br />Detalles</button> *@
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+	public Libro libro { get; set; } = new Libro();
+}

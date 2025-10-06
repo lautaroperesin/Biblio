@@ -1,0 +1,51 @@
+﻿@page "/recovery"
+@inject FirebaseAuthService _firebaseAuthService
+@inject SweetAlertService _sweetAlert
+@inject NavigationManager _navigationManager
+@rendermode InteractiveServer
+
+
+    <div class="card text-center">
+        <div class="card-header">
+            Iniciar sesión
+        </div>
+        <div class="card-body">
+            <h3 class="card-title">Recuperación de cuenta en Biblio</h3>
+            <div class="container">
+                <div class="row mb-3">
+                    <div class="col-md-12 d-flex justify-content-center align-items-center">
+                        <label class="form-label me-2">Correo electrónico:</label>
+                        <InputText class="form-control w-50" @bind-Value="email" placeholder="usuario@gmail.com" />
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 d-flex justify-content-center">
+                        <button class="btn btn-primary mb-3" @onclick="Enviar">Enviar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer text-body-secondary">
+            Desarrollo 3er año - TSDS - 2025
+        </div>
+    </div>
+
+@code {
+    string email = string.Empty;
+
+    private async Task Enviar()
+    {
+        var success = await _firebaseAuthService.RecoveryPassword(email);
+        if (success != null)
+        {
+            await _sweetAlert.FireAsync("Correo enviado", "Se ha enviado un correo de recuperación a su dirección de email.", SweetAlertIcon.Success);
+            _navigationManager.NavigateTo("/login");
+        }
+        else
+        {
+			await _sweetAlert.FireAsync("Error", "No se pudo enviar el correo de recuperación. Verifique que el email sea correcto.", SweetAlertIcon.Error);
+        }
+        _navigationManager.NavigateTo("/login");
+    }
+}

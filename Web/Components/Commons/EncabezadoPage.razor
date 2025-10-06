@@ -1,0 +1,11 @@
+﻿<div class="card header-card">
+    <h2>@Titulo</h2>
+    <p class="subtitle">@Descripcion</p>
+</div>
+
+@code {
+    [Parameter]
+	public string Titulo { get; set; } = "Titulo no definido";
+    [Parameter]
+	public string Descripcion { get; set; } = "Descripcion no definida";
+}

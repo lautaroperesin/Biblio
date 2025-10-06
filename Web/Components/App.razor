@@ -87,6 +87,16 @@
                 await firebase.auth().signOut();
             },
 
+            recoveryPassword: async function (email) {
+                try {
+                    await firebase.auth().sendPasswordResetEmail(email);
+                    return true;
+                } catch (error) {
+                    console.error("Error al enviar correo de recuperación:", error.message);
+                    return null;
+                }
+			},
+
             getUserFirebase: async function () {
                 return new Promise((resolve, reject) => {
                     firebase.auth().onAuthStateChanged((user) => {

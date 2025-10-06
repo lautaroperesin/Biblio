@@ -1,0 +1,48 @@
+﻿@page "/buscarlibros"
+@inject NavigationManager Navigation
+@inject ILibroService _libroService
+@rendermode InteractiveServer
+
+@if(Libros == null)
+{
+    <p><em>Cargando...</em></p>
+}
+
+<div class="buscar-libros-root">
+    <!-- Encabezado -->
+    <EncabezadoPage Titulo="🔍 Buscar Libros" Descripcion="Encuentra libros en nuestro catálogo"></EncabezadoPage>
+
+    <!-- Sección de búsqueda -->
+    <SeccionBusqueda Libros="Libros" OnBuscar="Buscar"></SeccionBusqueda>
+
+    <!-- Resultados -->
+    <div class="results-root">
+        <ResultadoBusqueda CantidadResultados="Libros.Count" TextoResultado="@(Libros.Count == 1 ? "libro encontrado" : "libros encontrados")"></ResultadoBusqueda>
+
+        <div class="results-list">
+            @foreach (var libro in Libros)
+            {
+				<CardLibro libro="libro"></CardLibro>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Libro> Libros { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Buscar(new FilterLibroDTO(){ForTitulo=true});
+    }
+
+    private async Task Buscar(FilterLibroDTO filtro)
+    {
+        StateHasChanged();
+
+        var res = await _libroService.GetWithFilterAsync(filtro);
+        Libros = res ?? new List<Libro>();
+
+        StateHasChanged();
+    }
+}

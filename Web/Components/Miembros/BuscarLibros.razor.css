@@ -1,0 +1,43 @@
+.buscar-libros-root { max-width: 900px; margin: 20px auto; font-family: var(--bs-font-sans-serif, Arial, Helvetica, sans-serif); }
+
+.card { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 16px; border: 1px solid #e6eef9; }
+
+.header-card { background: #1E90FF; color: white; text-align: center; }
+.header-card h2 { margin: 0; font-size: 26px; }
+.header-card .subtitle { color: LightBlue; margin-top: 6px; }
+
+.search-card { background: #fff; }
+.section-title { display: block; font-weight: 700; color: #2f4f4f; margin-bottom: 8px; }
+
+.search-row { display: flex; gap: 10px; align-items: center; }
+.search-input { flex: 1; padding: 10px 12px; border-radius: 10px; border: 1px solid #d0e7ff; background: #f5f7fa; font-size: 16px; }
+.search-button { width: 80px; height: 56px; white-space: pre-line; font-weight: 700; background: green; color: white; border: none; border-radius: 10px; }
+.filters-toggle { margin-top: 10px; background: LightSteelBlue; color: DarkBlue; border: none; padding: 8px 12px; border-radius: 8px; }
+
+.filters-panel { background: #F0F8FF; border-radius: 10px; padding: 12px; margin-top: 10px; border: 1px solid #cfe8ff; }
+.filters-title { font-weight: 700; color: #0b63a8; margin-bottom: 8px; }
+.filters-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.filters-grid label { display: flex; gap: 8px; align-items: center; color: #2f4f4f; }
+.filters-actions { margin-top: 8px; }
+
+.loading-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.loading-text { color: #1E90FF; }
+
+.results-root { margin-top: 8px; }
+.results-header { background: #dff5e0; border: 1px solid #90ee90; color: #0b6b2f; text-align: center; }
+.results-header h3 { margin: 0; }
+.result-count { margin: 6px 0 0 0; }
+
+.results-list { display: flex; flex-direction: column; gap: 10px; }
+.libro-card { display: flex; padding: 12px; align-items: center; }
+.libro-main { display: flex; width: 100%; gap: 12px; }
+.libro-icon { font-size: 44px; display: flex; align-items: center; justify-content: center; width: 64px; }
+.libro-body { flex: 1; }
+.libro-title { font-size: 20px; font-weight: 700; color: #2f4f4f; }
+.libro-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; color: gray; }
+.meta-item { display: flex; gap: 6px; align-items: center; font-size: 14px; }
+.libro-desc { color: #6b6b6b; margin-top: 8px; max-height: 3.6em; overflow: hidden; }
+.libro-actions { display: flex; align-items: center; }
+.details-button { width: 80px; height: 80px; border-radius: 12px; white-space: pre-line; }
+
+.no-results { text-align: center; background: #fff7d6; border: 1px solid #ffd59a; }

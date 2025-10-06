@@ -5,7 +5,6 @@ using Backend.DataContext;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Service.ExtentionMethods;
 using Service.Models;
 
 namespace Backend.Controllers
