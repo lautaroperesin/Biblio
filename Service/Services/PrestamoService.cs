@@ -6,6 +6,7 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Service.DTOs;
 using Service.Interfaces;
@@ -16,7 +17,7 @@ namespace Service.Services
 {
     public class PrestamoService : GenericService<Prestamo>, IPrestamoService
     {
-        public PrestamoService(HttpClient? httpClient = null) : base(httpClient)
+        public PrestamoService(HttpClient? httpClient = null, IMemoryCache? memoryCache = null) : base(httpClient, memoryCache)
         {
 
         }

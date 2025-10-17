@@ -1,20 +1,22 @@
 ﻿using Firebase.Auth;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.JSInterop;
 using Service.Models.Login;
 using Service.Services;
 
-namespace WebBlazor.Services
+namespace Web.Services
 {
     public class FirebaseAuthService
     {
         private readonly IJSRuntime _jsRuntime;
         public event Action OnChangeLogin;
         public FirebaseUser CurrentUser { get; set; }
+        private IMemoryCache _memoryCache;
 
-        public FirebaseAuthService(IJSRuntime jsRuntime)
+        public FirebaseAuthService(IJSRuntime jsRuntime, IMemoryCache memoryCache)
         {
             _jsRuntime = jsRuntime;
+            _memoryCache = memoryCache;
         }
 
         public async Task<FirebaseUser?> SignInWithEmailPassword(string email, string password, bool rememberPassword)
@@ -23,6 +25,7 @@ namespace WebBlazor.Services
             if (user != null)
             {
                 CurrentUser = user;
+                await SetUserToken();
                 OnChangeLogin?.Invoke();
             }
             return user;
@@ -42,6 +45,7 @@ namespace WebBlazor.Services
         {
             await _jsRuntime.InvokeVoidAsync("firebaseAuth.signOut");
             CurrentUser = null;
+            _memoryCache.Remove("jwt");
             OnChangeLogin?.Invoke();
         }
 
@@ -53,17 +57,30 @@ namespace WebBlazor.Services
                 CurrentUser = userFirebase;
                 return userFirebase;
             }
-            else
+            else return null;
+        }
+
+        private async Task SetUserToken()
+        {
+            var jwtToken = await _jsRuntime.InvokeAsync<string?>("firebaseAuth.getUserToken");
+            _memoryCache.Set("jwt", jwtToken);
+        }
+
+        public async Task<string?> GetUserToken()
+        {
+            // Usa el provider para resolver y cachear el token
+            return await _memoryCache.GetOrCreateAsync("jwt", async entry =>
             {
-                CurrentUser = null;
-                return null;
-            }
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(55);
+                var token = await _jsRuntime.InvokeAsync<string?>("firebaseAuth.getUserToken");
+                return token;
+            });
         }
 
         public async Task<bool> IsUserAuthenticated()
         {
             var user = await GetUserFirebase();
-            if(user != null)
+            if (user != null)
             {
                 await SetUserToken();
                 OnChangeLogin?.Invoke();
@@ -71,26 +88,19 @@ namespace WebBlazor.Services
             return user != null;
         }
 
-        public async Task SetUserToken()
-        {
-            var token = await _jsRuntime.InvokeAsync<string>("firebaseAuth.getUserToken");
-            if (token != null)
-            {
-                GenericService<object>.token = token;
-            }
-        }
-
         public async Task<FirebaseUser?> LoginWithGoogle()
         {
             var userFirebase = await _jsRuntime.InvokeAsync<FirebaseUser>("firebaseAuth.loginWithGoogle");
             CurrentUser = userFirebase;
+            await SetUserToken();
             OnChangeLogin?.Invoke();
             return userFirebase;
         }
-
+        //recuperación de correo
         public async Task<bool> RecoveryPassword(string email)
         {
             return await _jsRuntime.InvokeAsync<bool>("firebaseAuth.recoveryPassword", email);
         }
+
     }
 }

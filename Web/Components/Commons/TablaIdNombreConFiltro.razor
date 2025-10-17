@@ -1,0 +1,86 @@
+﻿@inject ILogger<TablaIdNombreConFiltro> Logger
+@if (ListEntityFiltered == null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <div class="form-group">
+        <label for="filterText">Filtrar por nombre</label>
+        <InputText id="filterText" class="form-control" @bind-Value="filterText" @oninput="FilterList" placeholder="Filtrar por nombre" />
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nombre</th>
+                <th colspan="2">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var entity in ListEntity)
+            {
+                <tr>
+                    <td>@entity.Id</td>
+                    <td>@entity.Nombre</td>
+                    <td>
+                        <button title="Modificar" class="btn btn-info" @onclick="@(() => HandleModificar(entity))">Modificar</button>
+                    </td>
+                    <td>
+                        <button title="Eliminar" class="btn btn-danger" @onclick="@(() => HandleEliminar(entity))">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public List<IEntityIdNombre> ListEntity { get; set; }
+
+    List<IEntityIdNombre> ListEntityFiltered { get; set; } = null;
+
+    [Parameter]
+    public EventCallback<IEntityIdNombre> OnModificar { get; set; }
+
+    [Parameter]
+    public EventCallback<IEntityIdNombre> OnEliminar { get; set; }
+
+    string filterText = "";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        ListEntityFiltered = ListEntity.ToList();
+        // Logger.LogInformation($"ListEntityFiltered count {ListEntityFiltered.Count}");
+        // Logger.LogInformation($"ListEntity count {ListEntity.Count}");
+    }
+
+    private void HandleModificar(IEntityIdNombre entity)
+    {
+        OnModificar.InvokeAsync(entity);
+    }
+
+    private void HandleEliminar(IEntityIdNombre entity)
+    {
+        OnEliminar.InvokeAsync(entity);
+    }
+
+    private void FilterList(ChangeEventArgs e)
+    {
+        filterText = e.Value?.ToString() ?? string.Empty;
+        // Logger.LogInformation($"Filtering by {filterText}");
+        // Logger.LogInformation($"ListEntityFiltered count {ListEntityFiltered.Count}");
+        // Logger.LogInformation($"ListEntity count {ListEntity.Count}");
+        if (string.IsNullOrEmpty(filterText))
+        {
+            ListEntity = ListEntityFiltered;
+        }
+        else
+        {
+            ListEntity = ListEntityFiltered.Where(x => x.Nombre.Contains(filterText, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+        StateHasChanged();
+    }
+}
+

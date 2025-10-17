@@ -1,0 +1,133 @@
+﻿@page "/miembros/prestamos"
+@inject IPrestamoService _prestamoService
+@inject IMemoryCache _cacheMemory
+@inject SweetAlertService _sweetAlert
+@inject NavigationManager _navigationManager
+@rendermode InteractiveServer
+
+<div class="container py-4">
+    <!-- Indicador de carga -->
+    @if (IsBusy)
+    {
+        <div class="d-flex align-items-center justify-content-center my-4">
+            <div class="spinner-border text-primary" role="status"></div>
+            <span class="ms-2 text-primary">Cargando préstamos...</span>
+        </div>
+    }
+
+    <!-- Sección Préstamos Vigentes -->
+    <div class="mb-4">
+        <div class="card shadow border-success mb-3" style="background-color:#90EE90;">
+            <div class="card-body text-center">
+                <h5 class="card-title fw-bold" style="color:#0b5d1e;">📚 Préstamos Vigentes</h5>
+            </div>
+        </div>
+
+        @if (PrestamosVigentes.Count == 0 && !IsBusy)
+        {
+            <div class="alert alert-warning" role="alert">
+                ℹ️ No tienes préstamos vigentes
+            </div>
+        }
+
+        @foreach (var p in PrestamosVigentes)
+        {
+            <div class="card shadow-sm mb-3 border border-success">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="fw-bold" style="font-size:16px;">@p.Ejemplar?.Libro?.Titulo</div>
+                            <div class="text-muted" style="font-size:14px;">Prestado el: @p.FechaPrestamo:dd/MM/yyyy</div>
+                        </div>
+                        <div class="col-auto">
+                            <span class="badge text-bg-warning">🔄 Activo</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <hr />
+
+    <!-- Sección Préstamos Históricos -->
+    <div class="mb-4">
+        <div class="card shadow border-primary mb-3" style="background-color:#ADD8E6;">
+            <div class="card-body text-center">
+                <h5 class="card-title fw-bold" style="color:#0d3a62;">📋 Préstamos Históricos</h5>
+            </div>
+        </div>
+
+        @if (PrestamosHistoricos.Count == 0 && !IsBusy)
+        {
+            <div class="alert alert-secondary" role="alert">
+                📝 No tienes préstamos históricos
+            </div>
+        }
+
+        @foreach (var p in PrestamosHistoricos)
+        {
+            <div class="card shadow-sm mb-3 border border-info">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="fw-bold" style="font-size:16px;">@p.Ejemplar?.Libro?.Titulo</div>
+                            <div class="text-muted" style="font-size:14px;">Prestado el: @p.FechaPrestamo:dd/MM/yyyy</div>
+                            <div class="text-success fw-bold" style="font-size:14px;">Devuelto el: @p.FechaDevolucion:dd/MM/yyyy</div>
+                        </div>
+                        <div class="col-auto">
+                            <span class="badge text-bg-success">✅ Devuelto</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    bool IsBusy { get; set; } = true;
+    List<Prestamo> PrestamosVigentes { get; set; } = new();
+    List<Prestamo> PrestamosHistoricos { get; set; } = new();
+    Usuario? UsuarioLogueado { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Si tienes un servicio de usuario, carga el usuario logueado aquí
+        UsuarioLogueado = _cacheMemory.Get<Usuario>("usuarioLogueado");
+        if (UsuarioLogueado == null)
+        {
+            await _sweetAlert.FireAsync("Error", "No se encontró el usuario logueado. Por favor, inicia sesión.", SweetAlertIcon.Error);
+            return;
+        }
+        else
+        {
+            // Si el usuario está en caché, puedes usar su ID para cargar los préstamos
+            // Asegúrate de que el servicio GetByUsuarioAsync acepte el ID correcto
+            await CargarPrestamosAsync();
+        }
+
+
+    }
+
+    private async Task CargarPrestamosAsync()
+    {
+        try
+        {
+            IsBusy = true;
+            // Si tu backend tiene endpoint por usuario, reemplaza 0 por el id real o ajusta el servicio
+            var todos = await _prestamoService.GetByUsuarioAsync(UsuarioLogueado.Id);
+            var now = DateTime.Now.Date;
+            PrestamosVigentes = (todos ?? new()).Where(p => p.FechaDevolucion == null).ToList();
+            PrestamosHistoricos = (todos ?? new()).Where(p => p.FechaDevolucion != null).ToList();
+        }
+        catch (Exception ex)
+        {
+            await _sweetAlert.FireAsync("Error", ex.Message, SweetAlertIcon.Error);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+}

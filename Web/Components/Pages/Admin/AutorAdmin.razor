@@ -1,0 +1,85 @@
+﻿@page "/admin/autores"
+@inject NavigationManager _navigationManager
+@inject IGenericService<Autor> _autorService
+@inject SweetAlertService _sweetAlert
+@rendermode InteractiveServer
+
+<EncabezadoPage Titulo="Administracion de Autores" Descripcion="Gestiona los autores de los libros en la plataforma"/>
+
+<div class="container py-4">
+    @if (isLoading)
+    {
+        <div class="d-flex align-items-center justify-content-center my-4">
+            <div class="spinner-border text-primary" role="status"></div>
+            <span class="ms-2 text-primary">Cargando autores...</span>
+        </div>
+    }
+    else
+    {
+        @if (autores != null && autores.Count > 0)
+        {
+            <TablaIdNombreConFiltro ListEntity="@(autores.Cast<IEntityIdNombre>().ToList())" OnEliminar="Eliminar" OnModificar="Modificar"></TablaIdNombreConFiltro>
+        }
+        else
+        {
+            <div class="alert alert-info" role="alert">
+                No hay autores registrados.
+            </div>
+        }
+    }
+</div>
+
+@code {
+    List<Autor>? autores = new List<Autor>();
+
+    bool isLoading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAutores();
+    }
+
+    private async Task LoadAutores()
+    {
+        isLoading = true;
+        autores = await _autorService.GetAllAsync();
+        isLoading = false;
+    }
+
+    private void Modificar(IEntityIdNombre entity)
+    {
+        _sweetAlert.FireAsync("Modificar Autor", $"Redirigiendo para modificar el autor : {entity.Nombre}", SweetAlertIcon.Info);
+
+    }
+
+    private async Task Eliminar(IEntityIdNombre entity)
+    {
+        SweetAlertResult respuesta = await _sweetAlert.FireAsync(new SweetAlertOptions
+            {
+                Title = "Eliminando autor",
+                Text = $"¿Está seguro que desea borrar al autor {entity.Nombre}",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Si, quiero borrarlo!",
+                CancelButtonText = "No, espera"
+            });
+        if (respuesta.IsConfirmed)
+        {
+            try
+            {
+                await _autorService.DeleteAsync(entity.Id);
+                isLoading = true;
+                autores = await _autorService.GetAllAsync();
+                await _sweetAlert.FireAsync("Eliminado", "El autor ha sido eliminado exitosamente.", SweetAlertIcon.Success);
+            }
+            catch (Exception ex)
+            {
+                await _sweetAlert.FireAsync("Error", "Hubo un error al eliminar el autor.", SweetAlertIcon.Error);
+            }
+            finally
+            {
+                isLoading = false;
+            }
+        }
+    }
+}

@@ -1,13 +1,15 @@
-﻿using System;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Service.Interfaces;
+using Service.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Service.Interfaces;
-using Service.Utils;
 
 namespace Service.Services
 {
@@ -16,25 +18,50 @@ namespace Service.Services
         protected readonly HttpClient _httpClient;
         protected readonly string _endpoint;
         protected readonly JsonSerializerOptions _options;
-        public static string? token;
+        public static string? token = string.Empty;
+        private readonly IMemoryCache? _memoryCache;
 
-        public GenericService(HttpClient? httpClient = null)
+        public GenericService(HttpClient? httpClient = null, IMemoryCache? memoryCache = null)
         {
             _httpClient = httpClient ?? new HttpClient();
+            _memoryCache = memoryCache;
             _options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            _endpoint = Properties.Resources.urlApi + ApiEndpoints.GetEndpoint(typeof(T).Name);
+
+            if (_httpClient.BaseAddress is null)
+            {
+                _httpClient.BaseAddress = new Uri(Properties.Resources.urlApi);
+            }
+
+            _endpoint = ApiEndpoints.GetEndpoint(typeof(T).Name);
         }
 
         protected void SetAuthorizationHeader()
         {
-            if (!string.IsNullOrEmpty(GenericService<object>.token))
+            // Si ya está configurado (por un DelegatingHandler), no hacer nada
+            if (_httpClient.DefaultRequestHeaders.Authorization is not null)
+                return;
+
+            // 1) Intentar leer desde IMemoryCache (configurado por FirebaseAuthService)
+            if (_memoryCache is not null && _memoryCache.TryGetValue("jwt", out string? cachedToken) && !string.IsNullOrWhiteSpace(cachedToken))
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", cachedToken);
+                return;
+            }
+
+            // 2) Respaldo: variable estática (evitar uso si no es necesario)
+            if (!string.IsNullOrWhiteSpace(GenericService<object>.token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", GenericService<object>.token);
+                return;
             }
-            else
-            {
-                throw new Exception("Token de autenticación no proporcionado.");
-            }
+            // Si no se definió el token, se lanza una excepción
+
+            throw new InvalidOperationException("El token JWT no está disponible para la autorización.");
+
+
+
+
+
         }
 
         public async Task<T?> AddAsync(T? entity)
@@ -64,15 +91,14 @@ namespace Service.Services
         {
             SetAuthorizationHeader();
             var response = await _httpClient.GetAsync($"{_endpoint}?filtro={filtro}");
-
-            if(response.IsSuccessStatusCode)
+            if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<List<T>>(content, _options);
             }
             else
             {
-                throw new Exception("Error al obtener los datos.");
+                throw new Exception("Error al obtener los datos");
             }
         }
 
@@ -114,7 +140,7 @@ namespace Service.Services
         public async Task<bool> UpdateAsync(T? entity)
         {
             SetAuthorizationHeader();
-            var idValue = entity.GetType().GetProperty("Id").GetValue(entity);
+            var idValue = entity!.GetType().GetProperty("Id")!.GetValue(entity);
             var response = await _httpClient.PutAsJsonAsync($"{_endpoint}/{idValue}", entity);
             if (!response.IsSuccessStatusCode)
             {

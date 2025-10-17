@@ -5,10 +5,11 @@ using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
+using Service.Interfaces;
 
 namespace Service.Models
 {
-    public class Carrera
+    public class Carrera : IEntityIdNombre
     {
         public int Id { get; set; }
         [Required]

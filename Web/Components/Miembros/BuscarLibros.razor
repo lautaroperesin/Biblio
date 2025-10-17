@@ -31,9 +31,12 @@
 @code {
     private List<Libro> Libros { get; set; } = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await Buscar(new FilterLibroDTO(){ForTitulo=true});
+        if (firstRender)
+        {
+            await Buscar(new FilterLibroDTO() { ForTitulo = true });
+        }
     }
 
     private async Task Buscar(FilterLibroDTO filtro)

@@ -4,10 +4,11 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Service.Interfaces;
 
 namespace Service.Models
 {
-    public class Autor
+    public class Autor : IEntityIdNombre
     {
         public int Id { get; set; }
         [Required]

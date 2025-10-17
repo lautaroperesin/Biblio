@@ -9,7 +9,7 @@ namespace Service.Interfaces
     public interface IGenericService<T> where T : class
     {
         // Firma del método
-        public Task<List<T>?> GetAllAsync(string? filtro);
+        public Task<List<T>?> GetAllAsync(string? filtro = "");
         public Task<List<T>?> GetAllDeletedsAsync();
         public Task<T?> GetByIdAsync(int id);
         public Task<T?> AddAsync(T? entity);

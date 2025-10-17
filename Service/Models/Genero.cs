@@ -4,10 +4,11 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Service.Interfaces;
 
 namespace Service.Models
 {
-    public class Genero
+    public class Genero : IEntityIdNombre
     {
         public int Id { get; set; }
         [Required]

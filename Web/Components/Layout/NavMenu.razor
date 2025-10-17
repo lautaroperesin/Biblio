@@ -1,6 +1,10 @@
-﻿@inject FirebaseAuthService _firebaseAuthService
+﻿@using Service.Enums
+@inject FirebaseAuthService _firebaseAuthService
 @inject NavigationManager _navigationManager
+@inject IUsuarioService _usuarioService
+@inject IMemoryCache _cacheMemory
 @rendermode InteractiveServer
+
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
@@ -17,61 +21,99 @@
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Inicio
             </NavLink>
         </div>
-
         @if (_isLogued)
         {
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="buscarlibros">
-                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Buscar Libros
+                <NavLink class="nav-link" href="/miembros/buscar-libros">
+                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Buscar libros
                 </NavLink>
+                <NavLink class="nav-link" href="/miembros/prestamos">
+                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Prestamos libros
+                </NavLink>
+                <!--muestro el nombre de quien esta logueado-->
+                <p class="text-white mt-2">Hola, @_usuarioLogueado?.Nombre</p>
             </div>
         }
-        
+		@if (_usuarioLogueado != null && (_usuarioLogueado.TipoRol == TipoRolEnum.Bibliotecario))
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/admin/autores">
+                    <span class="bi bi-people-fill-nav-menu" aria-hidden="true"></span> Administración de Autores
+                </NavLink>
+            </div>
+		}
+
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="login">
                 <span class="bi bi-login" aria-hidden="true"></span> @textBtnLogin
             </NavLink>
         </div>
     </nav>
-    @code {
-        FirebaseUser? _userLogued;
-        bool _isLogued = false;
-        private string textBtnLogin => _isLogued ? "Cerrar sesión" : "Iniciar sesión";
+</div>
+@code {
+    FirebaseUser? _userLogued;
+    bool _isLogued = false;
+    Usuario? _usuarioLogueado;
+    private string textBtnLogin => _isLogued ? "Cerrar sesión" : "Iniciar sesión";
 
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
         {
-            if(firstRender)
-            {
-				_firebaseAuthService.OnChangeLogin += LoginChanged;
-                if (await _firebaseAuthService.IsUserAuthenticated())
-                {
-                    _userLogued = _firebaseAuthService.CurrentUser;
-                    _isLogued = true;
-                }
-                else
-                {
-                    _isLogued = false;
-                    _userLogued = null;
-                    _navigationManager.NavigateTo("/login");
-                }
-			}
-        }
-
-        private async void LoginChanged()
-        {
-            await _firebaseAuthService.IsUserAuthenticated();
-            if (_firebaseAuthService.CurrentUser != null)
+            //_firebaseAuthService.OnChangeLogin += async () => await InvokeAsync(LoginChangedAsync);
+            _firebaseAuthService.OnChangeLogin += LoginChanged;
+            if (await _firebaseAuthService.IsUserAuthenticated())
             {
                 _userLogued = _firebaseAuthService.CurrentUser;
                 _isLogued = true;
+                if (_usuarioLogueado == null) await CargarUsuarioAsync();
             }
             else
             {
                 _isLogued = false;
                 _userLogued = null;
                 _navigationManager.NavigateTo("/login");
+
             }
-			StateHasChanged();
         }
     }
-</div>
+
+    private async Task CargarUsuarioAsync()
+    {
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(_userLogued?.Email))
+            {
+                _usuarioLogueado = await _usuarioService.GetByEmailAsync(_userLogued.Email);
+                if (_usuarioLogueado != null)
+                {
+                    _cacheMemory.Set("usuarioLogueado", _usuarioLogueado);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine(ex);
+        }
+    }
+
+    private async void LoginChanged()
+    {
+        if (_firebaseAuthService.CurrentUser != null)
+        {
+            _userLogued = _firebaseAuthService.CurrentUser;
+            _isLogued = true;
+            if (_usuarioLogueado == null) await CargarUsuarioAsync();
+
+        }
+        else
+        {
+            _isLogued = false;
+            _userLogued = null;
+            _navigationManager.NavigateTo("/login");
+        }
+        StateHasChanged();
+    }
+
+
+}
