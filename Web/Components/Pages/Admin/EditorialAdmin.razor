@@ -16,9 +16,11 @@
     }
     else
     {
+        <button title="Nuevo" class="btn btn-primary mb-3" data-bs-toggle="modal" @onclick="Nuevo" data-bs-target="#NuevoEditarModal">Nuevo</button>
         @if (editoriales != null && editoriales.Count > 0)
         {
             <TablaIdNombreConFiltro ListEntity="@(editoriales.Cast<IEntityIdNombre>().ToList())" OnEliminar="Eliminar" OnModificar="Modificar"></TablaIdNombreConFiltro>
+			<NuevoEditarIdNombre Titulo="Editorial" Entity="editorialSeleccionada" OnGuardar="Guardar"></NuevoEditarIdNombre>
         }
         else
         {
@@ -31,6 +33,7 @@
 
 @code {
     List<Editorial>? editoriales = new List<Editorial>();
+	Editorial editorialSeleccionada = new();
 
     bool isLoading;
 
@@ -48,8 +51,42 @@
 
     private void Modificar(IEntityIdNombre entity)
     {
-        _sweetAlert.FireAsync("Modificar Editorial", $"Redirigiendo para modificar el editorial : {entity.Nombre}", SweetAlertIcon.Info);
+        editorialSeleccionada = (Editorial)entity;
+    }
 
+    private void Nuevo()
+    {
+        editorialSeleccionada = new();
+    }
+
+    private async Task Guardar(IEntityIdNombre entity)
+    {
+        try
+        {
+            isLoading = true;
+            Editorial editorialToSave = (Editorial)entity;
+            if (editorialToSave.Id == 0)
+            {
+                // Nuevo editorial
+                await _editorialService.AddAsync(editorialToSave);
+                await _sweetAlert.FireAsync("Creado", "El editorial ha sido creado exitosamente.", SweetAlertIcon.Success);
+            }
+            else
+            {
+                // Actualizar editorial existente
+                await _editorialService.UpdateAsync(editorialToSave);
+                await _sweetAlert.FireAsync("Actualizado", "El editorial ha sido actualizado exitosamente.", SweetAlertIcon.Success);
+            }
+            editoriales = await _editorialService.GetAllAsync();
+        }
+        catch (Exception ex)
+        {
+            await _sweetAlert.FireAsync("Error", "Hubo un error al guardar el editorial.", SweetAlertIcon.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private async Task Eliminar(IEntityIdNombre entity)

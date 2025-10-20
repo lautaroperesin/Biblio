@@ -6,8 +6,14 @@
 else
 {
     <div class="form-group">
-        <label for="filterText">Filtrar por nombre</label>
-        <InputText id="filterText" class="form-control" @bind-Value="filterText" @oninput="FilterList" placeholder="Filtrar por nombre" />
+        <div class="row align-items-center g-2">
+            <div class="col-auto">
+                <label for="filterText" class="col-form-label mb-0">Buscar</label>
+            </div>
+            <div class="col">
+                <InputText id="filterText" class="form-control" @bind-Value="filterText" @oninput="FilterList" placeholder="Filtrar por nombre" />
+            </div>
+        </div>
     </div>
     <table class="table">
         <thead>
@@ -24,7 +30,7 @@ else
                     <td>@entity.Id</td>
                     <td>@entity.Nombre</td>
                     <td>
-                        <button title="Modificar" class="btn btn-info" @onclick="@(() => HandleModificar(entity))">Modificar</button>
+                        <button title="Modificar" class="btn btn-info" @onclick="@(() => HandleModificar(entity))" data-bs-toggle="modal" data-bs-target="#NuevoEditarModal">Modificar</button>
                     </td>
                     <td>
                         <button title="Eliminar" class="btn btn-danger" @onclick="@(() => HandleEliminar(entity))">Eliminar</button>

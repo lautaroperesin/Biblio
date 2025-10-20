@@ -16,9 +16,11 @@
     }
     else
     {
+        <button title="Nuevo" class="btn btn-primary mb-3" data-bs-toggle="modal" @onclick="Nuevo" data-bs-target="#NuevoEditarModal">Nuevo</button>
         @if (carreras != null && carreras.Count > 0)
         {
             <TablaIdNombreConFiltro ListEntity="@(carreras.Cast<IEntityIdNombre>().ToList())" OnEliminar="Eliminar" OnModificar="Modificar"></TablaIdNombreConFiltro>
+            <NuevoEditarIdNombre Titulo="Carrera" Entity="carreraSeleccionada" OnGuardar="Guardar"></NuevoEditarIdNombre>
         }
         else
         {
@@ -31,6 +33,7 @@
 
 @code {
     List<Carrera>? carreras = new List<Carrera>();
+	Carrera carreraSeleccionada = new();
 
     bool isLoading;
 
@@ -48,8 +51,42 @@
 
     private void Modificar(IEntityIdNombre entity)
     {
-        _sweetAlert.FireAsync("Modificar Carrera", $"Redirigiendo para modificar el carrera : {entity.Nombre}", SweetAlertIcon.Info);
+        carreraSeleccionada = (Carrera)entity;
+    }
 
+    private void Nuevo()
+    {
+        carreraSeleccionada = new();
+    }
+
+    private async Task Guardar(IEntityIdNombre entity)
+    {
+        try
+        {
+            isLoading = true;
+            Carrera carreraToSave = (Carrera)entity;
+            if (carreraToSave.Id == 0)
+            {
+                // Nuevo carrera
+                await _carreraService.AddAsync(carreraToSave);
+                await _sweetAlert.FireAsync("Creado", "El carrera ha sido creado exitosamente.", SweetAlertIcon.Success);
+            }
+            else
+            {
+                // Actualizar carrera existente
+                await _carreraService.UpdateAsync(carreraToSave);
+                await _sweetAlert.FireAsync("Actualizado", "El carrera ha sido actualizado exitosamente.", SweetAlertIcon.Success);
+            }
+            carreras = await _carreraService.GetAllAsync();
+        }
+        catch (Exception ex)
+        {
+            await _sweetAlert.FireAsync("Error", "Hubo un error al guardar el carrera.", SweetAlertIcon.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private async Task Eliminar(IEntityIdNombre entity)

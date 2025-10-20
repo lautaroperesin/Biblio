@@ -16,9 +16,11 @@
     }
     else
     {
+		<button title="Nuevo" class="btn btn-primary mb-3" data-bs-toggle="modal" @onclick="Nuevo" data-bs-target="#NuevoEditarModal">Nuevo</button>
         @if (generos != null && generos.Count > 0)
         {
             <TablaIdNombreConFiltro ListEntity="@(generos.Cast<IEntityIdNombre>().ToList())" OnEliminar="Eliminar" OnModificar="Modificar"></TablaIdNombreConFiltro>
+			<NuevoEditarIdNombre Titulo="Genero" Entity="generoSeleccionado" OnGuardar="Guardar"></NuevoEditarIdNombre>
         }
         else
         {
@@ -31,6 +33,7 @@
 
 @code {
     List<Genero>? generos = new List<Genero>();
+	Genero generoSeleccionado = new();
 
     bool isLoading;
 
@@ -48,8 +51,42 @@
 
     private void Modificar(IEntityIdNombre entity)
     {
-        _sweetAlert.FireAsync("Modificar Genero", $"Redirigiendo para modificar el genero : {entity.Nombre}", SweetAlertIcon.Info);
+        generoSeleccionado = (Genero)entity;
+    }
 
+    private void Nuevo()
+    {
+        generoSeleccionado = new();
+    }
+
+    private async Task Guardar(IEntityIdNombre entity)
+    {
+        try
+        {
+            isLoading = true;
+            Genero generoToSave = (Genero)entity;
+            if (generoToSave.Id == 0)
+            {
+                // Nuevo genero
+                await _generoService.AddAsync(generoToSave);
+                await _sweetAlert.FireAsync("Creado", "El genero ha sido creado exitosamente.", SweetAlertIcon.Success);
+            }
+            else
+            {
+                // Actualizar genero existente
+                await _generoService.UpdateAsync(generoToSave);
+                await _sweetAlert.FireAsync("Actualizado", "El genero ha sido actualizado exitosamente.", SweetAlertIcon.Success);
+            }
+            generos = await _generoService.GetAllAsync();
+        }
+        catch (Exception ex)
+        {
+            await _sweetAlert.FireAsync("Error", "Hubo un error al guardar el genero.", SweetAlertIcon.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private async Task Eliminar(IEntityIdNombre entity)
