@@ -5,66 +5,61 @@
 @inject IMemoryCache _cacheMemory
 @rendermode InteractiveServer
 
-
-<div class="top-row ps-3 navbar navbar-dark">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark align-items-center">
     <div class="container-fluid">
         <a class="navbar-brand" href="">Web</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                        <span class="bi bi-house-door-fill-nav-menu" style="padding-top:0 !important" aria-hidden="true"></span> Inicio
+                    </NavLink>
+                </li>
+                @if (_isLogued)
+                {
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/miembros/buscar-libros">
+                            <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Buscar libros
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/miembros/prestamos">
+                            <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Prestamos libros
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <span class="nav-link">Hola, @_usuarioLogueado?.Nombre</span>
+                    </li>
+                }
+                @if (_usuarioLogueado != null && (_usuarioLogueado.TipoRol == TipoRolEnum.Bibliotecario))
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Admin
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                            <li><NavLink class="dropdown-item" href="/admin/autores">Autores</NavLink></li>
+                            <li><NavLink class="dropdown-item" href="/admin/editoriales">Editoriales</NavLink></li>
+                            <li><NavLink class="dropdown-item" href="/admin/carreras">Carreras</NavLink></li>
+                            <li><NavLink class="dropdown-item" href="/admin/generos">Géneros</NavLink></li>
+                        </ul>
+                    </li>
+                }
+            </ul>
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="login">
+                        <span class="bi bi-login" aria-hidden="true"></span> @textBtnLogin
+                    </NavLink>
+                </li>
+            </ul>
+        </div>
     </div>
-</div>
+</nav>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
-
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Inicio
-            </NavLink>
-        </div>
-        @if (_isLogued)
-        {
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="/miembros/buscar-libros">
-                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Buscar libros
-                </NavLink>
-                <NavLink class="nav-link" href="/miembros/prestamos">
-                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Prestamos libros
-                </NavLink>
-                <!--muestro el nombre de quien esta logueado-->
-                <p class="text-white mt-2">Hola, @_usuarioLogueado?.Nombre</p>
-            </div>
-        }
-		@if (_usuarioLogueado != null && (_usuarioLogueado.TipoRol == TipoRolEnum.Bibliotecario))
-        {
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="/admin/autores">
-                    <span class="bi bi-people-fill-nav-menu" aria-hidden="true"></span>Autores
-                </NavLink>
-            </div>
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="/admin/editoriales">
-                    <span class="bi bi-people-fill-nav-menu" aria-hidden="true"></span>Editoriales
-                </NavLink>
-            </div>
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="/admin/carreras">
-                    <span class="bi bi-people-fill-nav-menu" aria-hidden="true"></span>Carreras
-			</NavLink>
-			</div>
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="/admin/generos">
-                    <span class="bi bi-people-fill-nav-menu" aria-hidden="true"></span>Géneros
-                </NavLink>
-			</div>
-		}
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="login">
-                <span class="bi bi-login" aria-hidden="true"></span> @textBtnLogin
-            </NavLink>
-        </div>
-    </nav>
-</div>
 @code {
     FirebaseUser? _userLogued;
     bool _isLogued = false;
