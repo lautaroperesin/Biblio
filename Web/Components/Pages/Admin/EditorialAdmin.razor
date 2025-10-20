@@ -1,0 +1,85 @@
+﻿@page "/admin/editoriales"
+@inject NavigationManager _navigationManager
+@inject IGenericService<Editorial> _editorialService
+@inject SweetAlertService _sweetAlert
+@rendermode InteractiveServer
+
+<EncabezadoPage Titulo="Administracion de Editoriales" Descripcion="Gestiona los editoriales de los libros en la plataforma"/>
+
+<div class="container py-4">
+    @if (isLoading)
+    {
+        <div class="d-flex align-items-center justify-content-center my-4">
+            <div class="spinner-border text-primary" role="status"></div>
+            <span class="ms-2 text-primary">Cargando editoriales...</span>
+        </div>
+    }
+    else
+    {
+        @if (editoriales != null && editoriales.Count > 0)
+        {
+            <TablaIdNombreConFiltro ListEntity="@(editoriales.Cast<IEntityIdNombre>().ToList())" OnEliminar="Eliminar" OnModificar="Modificar"></TablaIdNombreConFiltro>
+        }
+        else
+        {
+            <div class="alert alert-info" role="alert">
+                No hay editoriales registrados.
+            </div>
+        }
+    }
+</div>
+
+@code {
+    List<Editorial>? editoriales = new List<Editorial>();
+
+    bool isLoading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEditoriales();
+    }
+
+    private async Task LoadEditoriales()
+    {
+        isLoading = true;
+        editoriales = await _editorialService.GetAllAsync();
+        isLoading = false;
+    }
+
+    private void Modificar(IEntityIdNombre entity)
+    {
+        _sweetAlert.FireAsync("Modificar Editorial", $"Redirigiendo para modificar el editorial : {entity.Nombre}", SweetAlertIcon.Info);
+
+    }
+
+    private async Task Eliminar(IEntityIdNombre entity)
+    {
+        SweetAlertResult respuesta = await _sweetAlert.FireAsync(new SweetAlertOptions
+            {
+                Title = "Eliminando editorial",
+                Text = $"¿Está seguro que desea borrar al editorial {entity.Nombre}",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Si, quiero borrarlo!",
+                CancelButtonText = "No, espera"
+            });
+        if (respuesta.IsConfirmed)
+        {
+            try
+            {
+                await _editorialService.DeleteAsync(entity.Id);
+                isLoading = true;
+                editoriales = await _editorialService.GetAllAsync();
+                await _sweetAlert.FireAsync("Eliminado", "El editorial ha sido eliminado exitosamente.", SweetAlertIcon.Success);
+            }
+            catch (Exception ex)
+            {
+                await _sweetAlert.FireAsync("Error", "Hubo un error al eliminar el editorial.", SweetAlertIcon.Error);
+            }
+            finally
+            {
+                isLoading = false;
+            }
+        }
+    }
+}

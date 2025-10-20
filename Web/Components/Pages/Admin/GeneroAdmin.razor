@@ -1,0 +1,85 @@
+﻿@page "/admin/generos"
+@inject NavigationManager _navigationManager
+@inject IGenericService<Genero> _generoService
+@inject SweetAlertService _sweetAlert
+@rendermode InteractiveServer
+
+<EncabezadoPage Titulo="Administracion de Generos" Descripcion="Gestiona los generos de los libros en la plataforma"/>
+
+<div class="container py-4">
+    @if (isLoading)
+    {
+        <div class="d-flex align-items-center justify-content-center my-4">
+            <div class="spinner-border text-primary" role="status"></div>
+            <span class="ms-2 text-primary">Cargando generos...</span>
+        </div>
+    }
+    else
+    {
+        @if (generos != null && generos.Count > 0)
+        {
+            <TablaIdNombreConFiltro ListEntity="@(generos.Cast<IEntityIdNombre>().ToList())" OnEliminar="Eliminar" OnModificar="Modificar"></TablaIdNombreConFiltro>
+        }
+        else
+        {
+            <div class="alert alert-info" role="alert">
+                No hay generos registrados.
+            </div>
+        }
+    }
+</div>
+
+@code {
+    List<Genero>? generos = new List<Genero>();
+
+    bool isLoading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadGeneros();
+    }
+
+    private async Task LoadGeneros()
+    {
+        isLoading = true;
+        generos = await _generoService.GetAllAsync();
+        isLoading = false;
+    }
+
+    private void Modificar(IEntityIdNombre entity)
+    {
+        _sweetAlert.FireAsync("Modificar Genero", $"Redirigiendo para modificar el genero : {entity.Nombre}", SweetAlertIcon.Info);
+
+    }
+
+    private async Task Eliminar(IEntityIdNombre entity)
+    {
+        SweetAlertResult respuesta = await _sweetAlert.FireAsync(new SweetAlertOptions
+            {
+                Title = "Eliminando genero",
+                Text = $"¿Está seguro que desea borrar al genero {entity.Nombre}",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Si, quiero borrarlo!",
+                CancelButtonText = "No, espera"
+            });
+        if (respuesta.IsConfirmed)
+        {
+            try
+            {
+                await _generoService.DeleteAsync(entity.Id);
+                isLoading = true;
+                generos = await _generoService.GetAllAsync();
+                await _sweetAlert.FireAsync("Eliminado", "El genero ha sido eliminado exitosamente.", SweetAlertIcon.Success);
+            }
+            catch (Exception ex)
+            {
+                await _sweetAlert.FireAsync("Error", "Hubo un error al eliminar el genero.", SweetAlertIcon.Error);
+            }
+            finally
+            {
+                isLoading = false;
+            }
+        }
+    }
+}
