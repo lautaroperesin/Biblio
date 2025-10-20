@@ -1,0 +1,39 @@
+﻿<!-- Modal -->
+<div class="modal fade" id="NuevoEditarLibro" tabindex="-1" aria-labelledby="Nuevo/Editar Modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">@(IsEditing ? "Editar" : "Nuevo") Libro</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="nombreInput" class="form-label">Titulo</label>
+                    <InputText id="nombreInput" class="form-control" @bind-Value="@Entity.Titulo" />
+				</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" @onclick="@(() => HandleGuardar(Entity))" data-bs-dismiss="modal">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Libro? Entity { get; set; }
+
+    private bool IsEditing => Entity?.Id > 0;
+
+    [Parameter]
+    public EventCallback<Libro> OnGuardar { get; set; }
+
+    private async Task HandleGuardar(Libro entity)
+    {
+        if (OnGuardar.HasDelegate)
+        {
+            await OnGuardar.InvokeAsync(entity);
+        }
+    }
+}

@@ -15,7 +15,7 @@
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
                     <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                        <span class="bi bi-house-door-fill-nav-menu" style="padding-top:0 !important" aria-hidden="true"></span> Inicio
+                        <span class="bi bi-house-door-fill-nav-menu" style="padding-top:0em !important" aria-hidden="true"></span> Inicio
                     </NavLink>
                 </li>
                 @if (_isLogued)
@@ -45,6 +45,8 @@
                             <li><NavLink class="dropdown-item" href="/admin/editoriales">Editoriales</NavLink></li>
                             <li><NavLink class="dropdown-item" href="/admin/carreras">Carreras</NavLink></li>
                             <li><NavLink class="dropdown-item" href="/admin/generos">Géneros</NavLink></li>
+                            <li><hr class="dropdown-divider"/></li>
+							<li><NavLink class="dropdown-item" href="/admin/libros">Libros</NavLink></li>
                         </ul>
                     </li>
                 }

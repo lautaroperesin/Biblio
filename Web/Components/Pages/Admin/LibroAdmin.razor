@@ -1,0 +1,121 @@
+﻿@page "/admin/libros"
+@inject NavigationManager _navigationManager
+@inject ILibroService _libroService
+@inject SweetAlertService _sweetAlert
+@rendermode InteractiveServer
+
+<EncabezadoPage Titulo="Administracion de Libros" Descripcion="Gestiona los libros de los libros en la plataforma"/>
+
+<div class="container py-4">
+    @if (isLoading)
+    {
+        <div class="d-flex align-items-center justify-content-center my-4">
+            <div class="spinner-border text-primary" role="status"></div>
+            <span class="ms-2 text-primary">Cargando libros...</span>
+        </div>
+    }
+    else
+    {
+        <button title="Nuevo" class="btn btn-primary mb-3" data-bs-toggle="modal" @onclick="Nuevo" data-bs-target="#NuevoEditarLibro">Nuevo</button>
+        @if (libros != null && libros.Count > 0)
+        {
+            <TablaLibrosConFiltro ListEntity="@(libros.ToList())" OnEliminar="Eliminar" OnModificar="Modificar"></TablaLibrosConFiltro>
+			<NuevoEditarLibro Entity="libroSeleccionado" OnGuardar="Guardar"></NuevoEditarLibro>
+        }
+        else
+        {
+            <div class="alert alert-info" role="alert">
+                No hay libros registrados.
+            </div>
+        }
+    }
+</div>
+
+@code {
+    List<Libro>? libros = new List<Libro>();
+    Libro libroSeleccionado = new Libro();  
+
+    bool isLoading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadLibros();
+    }
+
+    private async Task LoadLibros()
+    {
+        isLoading = true;
+        libros = await _libroService.GetAllAsync();
+        isLoading = false;
+    }
+
+    private void Modificar(Libro entity)
+    {
+		libroSeleccionado = entity;
+    }
+
+    private void Nuevo()
+    {
+        libroSeleccionado = new();
+    }
+
+    private async Task Guardar(Libro entity)
+    {
+        try
+        {
+            isLoading = true;
+            if (entity.Id == 0)
+            {
+                // Nuevo libro
+                await _libroService.AddAsync(entity);
+                await _sweetAlert.FireAsync("Creado", "El libro ha sido creado exitosamente.", SweetAlertIcon.Success);
+            }
+            else
+            {
+                // Actualizar libro existente
+                await _libroService.UpdateAsync(entity);
+                await _sweetAlert.FireAsync("Actualizado", "El libro ha sido actualizado exitosamente.", SweetAlertIcon.Success);
+            }
+            libros = await _libroService.GetAllAsync();
+        }
+        catch (Exception ex)
+        {
+            await _sweetAlert.FireAsync("Error", "Hubo un error al guardar el libro.", SweetAlertIcon.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+	}
+
+    private async Task Eliminar(Libro entity)
+    {
+        SweetAlertResult respuesta = await _sweetAlert.FireAsync(new SweetAlertOptions
+            {
+                Title = "Eliminando libro",
+                Text = $"¿Está seguro que desea borrar al libro {entity.Titulo}",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Si, quiero borrarlo!",
+                CancelButtonText = "No, espera"
+            });
+        if (respuesta.IsConfirmed)
+        {
+            try
+            {
+                await _libroService.DeleteAsync(entity.Id);
+                isLoading = true;
+                libros = await _libroService.GetAllAsync();
+                await _sweetAlert.FireAsync("Eliminado", "El libro ha sido eliminado exitosamente.", SweetAlertIcon.Success);
+            }
+            catch (Exception ex)
+            {
+                await _sweetAlert.FireAsync("Error", "Hubo un error al eliminar el libro.", SweetAlertIcon.Error);
+            }
+            finally
+            {
+                isLoading = false;
+            }
+        }
+    }
+}

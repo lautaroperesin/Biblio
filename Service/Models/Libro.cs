@@ -5,10 +5,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Service.Interfaces;
 
 namespace Service.Models
 {
-    public class Libro
+    public class Libro 
     {
         public int Id { get; set; }
         [Required]
