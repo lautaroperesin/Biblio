@@ -30,7 +30,7 @@ else
                     <td>@entity.Id</td>
                     <td>@entity.Titulo</td>
                     <td>
-                        <button title="Modificar" class="btn btn-info" @onclick="@(() => HandleModificar(entity))" data-bs-toggle="modal" data-bs-target="#NuevoEditarLibro">Modificar</button>
+                        <button title="Modificar" class="btn btn-info" @onclick="@(() => HandleModificar(entity))">Modificar</button>
                     </td>
                     <td>
                         <button title="Eliminar" class="btn btn-danger" @onclick="@(() => HandleEliminar(entity))">Eliminar</button>

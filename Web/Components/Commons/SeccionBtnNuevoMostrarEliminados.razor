@@ -1,0 +1,52 @@
+﻿<div class="form-group">
+    <div class="row align-items-center g-2">
+        <div class="col-auto">
+            <button title="Nuevo" class="btn btn-info mb-2" @onclick="HandleNuevo" data-bs-toggle="modal" data-bs-target="#NuevoEditarModal">Nuevo</button>
+        </div>
+        <div class="col">
+            <div class="col-6 d-flex align-items-center">
+                <label class="form-check-label">🔍 Ver eliminados</label>
+                <InputCheckbox Value="MostrarEliminados"
+                               ValueChanged="OnMostrarEliminadosChanged"
+                               ValueExpression="() => MostrarEliminados"
+                               class="m-2" />
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public bool MostrarEliminados { get; set; }
+
+    // Soporta @bind-MostrarEliminados en el padre
+    [Parameter]
+    public EventCallback<bool> MostrarEliminadosChanged { get; set; }
+
+    [Parameter]
+    public EventCallback OnNuevo { get; set; }
+
+    private async Task HandleNuevo()
+    {
+        if (OnNuevo.HasDelegate)
+        {
+            await OnNuevo.InvokeAsync();
+        }
+    }
+
+    [Parameter]
+    public EventCallback OnAfterMostrarEliminados { get; set; }
+
+    private async Task OnMostrarEliminadosChanged(bool value)
+    {
+        MostrarEliminados = value;
+        if (MostrarEliminadosChanged.HasDelegate)
+        {
+            await MostrarEliminadosChanged.InvokeAsync(value);
+        }
+        if (OnAfterMostrarEliminados.HasDelegate)
+        {
+            await OnAfterMostrarEliminados.InvokeAsync();
+        }
+    }
+}

@@ -1,0 +1,171 @@
+@typeparam TItem where TItem : class
+@typeparam TValue
+
+<div class="multi-select-container">    
+    <!-- Barra de búsqueda -->
+    <div class="input-group mb-2">
+        <input type="text" 
+               class="form-control" 
+               placeholder="Buscar..." 
+               @bind="SearchTerm"
+               @bind:event="oninput"
+               @onkeydown="HandleKeyDown" />
+        <span class="input-group-text">
+            <i class="bi bi-search"></i>
+        </span>
+    </div>
+
+    <!-- Lista de opciones -->
+    <div class="list-group" style="max-height: 300px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.375rem;">
+        @if (FilteredItems.Any())
+        {
+            @foreach (var item in FilteredItems)
+            {
+                var itemId = GetItemId(item);
+                var isSelected = SelectedIds.Contains(itemId);
+                
+                <label class="list-group-item list-group-item-action">
+                    <input type="checkbox" 
+                           class="form-check-input me-2"
+                           @onchange="@((ChangeEventArgs e) => ToggleItem(itemId, (bool)e.Value!))"
+                           checked="@isSelected" />
+                    @GetItemDisplay(item)
+                </label>
+            }
+        }
+        else
+        {
+            <div class="list-group-item text-muted text-center py-3">
+                @(string.IsNullOrEmpty(SearchTerm) ? "No hay elementos disponibles" : "No se encontraron resultados")
+            </div>
+        }
+    </div>
+
+    <!-- Elementos seleccionados -->
+    @if (SelectedIds.Any())
+    {
+        <div class="mt-3">
+            <h6 class="mb-2">Seleccionados (@SelectedIds.Count):</h6>
+            <div class="d-flex flex-wrap gap-2">
+                @foreach (var id in SelectedIds)
+                {
+                    var item = Items.FirstOrDefault(i => GetItemId(i).Equals(id));
+                    @if (item != null)
+                    {
+                        <span class="badge bg-primary">
+                            @GetItemDisplay(item)
+                            <button type="button" 
+                                    class="btn-close btn-close-white ms-2" 
+                                    @onclick="@(() => ToggleItem(id, false))" 
+                                    style="font-size: 0.7rem;"></button>
+                        </span>
+                    }
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Validación -->
+    @if (IsRequired && !SelectedIds.Any())
+    {
+        <small class="text-danger d-block mt-2">Debe seleccionar al menos un elemento</small>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string Label { get; set; } = "Seleccione";
+
+    [Parameter]
+    public List<TItem> Items { get; set; } = new();
+
+    [Parameter]
+    public HashSet<TValue> SelectedIds { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<HashSet<TValue>> SelectedIdsChanged { get; set; }
+
+    [Parameter]
+    public Func<TItem, TValue> GetItemId { get; set; } = null!;
+
+    [Parameter]
+    public Func<TItem, string> GetItemDisplay { get; set; } = null!;
+
+    [Parameter]
+    public bool IsRequired { get; set; } = false;
+
+    private string SearchTerm = string.Empty;
+
+    private List<TItem> FilteredItems
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(SearchTerm))
+                return Items;
+
+            var term = SearchTerm.ToLower();
+            return Items.Where(item => 
+                GetItemDisplay(item).ToLower().Contains(term)
+            ).ToList();
+        }
+    }
+
+    private async Task ToggleItem(TValue id, bool isSelected)
+    {
+        if (isSelected)
+        {
+            SelectedIds.Add(id);
+        }
+        else
+        {
+            SelectedIds.Remove(id);
+        }
+
+        await SelectedIdsChanged.InvokeAsync(SelectedIds);
+    }
+
+    private void HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape")
+        {
+            SearchTerm = string.Empty;
+        }
+    }
+}
+
+<style>
+    .multi-select-container {
+        margin-bottom: 1rem;
+    }
+
+    .list-group-item {
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .list-group-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .list-group-item input[type="checkbox"] {
+        cursor: pointer;
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .btn-close {
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 0.2s ease;
+    }
+
+    .btn-close:hover {
+        opacity: 1;
+    }
+</style>
+

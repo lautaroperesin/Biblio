@@ -1,0 +1,319 @@
+@page "/admin/libros/crear"
+@page "/admin/libros/editar/{LibroId:int}"
+@inject NavigationManager NavigationManager
+@inject ILibroService LibroService
+@inject IGenericService<Autor> AutorService
+@inject IGenericService<Genero> GeneroService
+@inject IGenericService<Editorial> EditorialService
+@rendermode InteractiveServer
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h2>@(LibroId == 0 ? "Crear Nuevo Libro" : "Editar Libro")</h2>
+            <hr />
+
+            @if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @ErrorMessage
+                    <button type="button" class="btn-close" @onclick="() => ErrorMessage = string.Empty"></button>
+                </div>
+            }
+
+            @if (IsLoading)
+            {
+                <ActivityIndicator Mensaje="Cargando libros..."></ActivityIndicator>
+            }
+            else
+            {
+                <EditForm Model="@Libro" OnValidSubmit="@HandleSubmit">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="alert alert-warning" />
+
+                    <!-- Sección: Información Básica -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Información Básica</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Título -->
+                            <div class="mb-3">
+                                <label for="titulo" class="form-label">Título <span class="text-danger">*</span></label>
+                                <InputText id="titulo" class="form-control" @bind-Value="Libro.Titulo" placeholder="Ingrese el título del libro" />
+                                <ValidationMessage For="@(() => Libro.Titulo)" class="text-danger" />
+                            </div>
+
+                            <!-- Descripción -->
+                            <div class="mb-3">
+                                <label for="descripcion" class="form-label">Descripción</label>
+                                <InputTextArea id="descripcion" class="form-control" @bind-Value="Libro.Descripcion" rows="3" placeholder="Descripción breve del libro" />
+								<ValidationMessage For="@(() => Libro.Descripcion)" class="text-danger" />
+                            </div>
+
+                            <!-- Sinopsis -->
+                            <div class="mb-3">
+                                <label for="sinopsis" class="form-label">Sinopsis <span class="text-danger">*</span></label>
+                                <InputTextArea id="sinopsis" class="form-control" @bind-Value="Libro.Sinopsis" rows="4" placeholder="Sinopsis detallada del libro" />
+                                <ValidationMessage For="@(() => Libro.Sinopsis)" class="text-danger" />
+                            </div>
+
+                            <!-- Año de Publicación -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="anioPublicacion" class="form-label">Año de Publicación</label>
+                                    <InputNumber id="anioPublicacion" class="form-control" @bind-Value="Libro.AnioPublicacion" />
+                                </div>
+
+                                <!-- Páginas -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="paginas" class="form-label">Páginas <span class="text-danger">*</span></label>
+                                    <InputNumber id="paginas" class="form-control" @bind-Value="Libro.Paginas" />
+                                    <ValidationMessage For="@(() => Libro.Paginas)" class="text-danger" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección: Editorial -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Editorial</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="editorial" class="form-label">Editorial <span class="text-danger">*</span></label>
+                                <InputSelect id="editorial" class="form-control" @bind-Value="Libro.EditorialId">
+                                    <option value="0">-- Seleccione una Editorial --</option>
+                                    @foreach (var editorial in Editoriales)
+                                    {
+                                        <option value="@editorial.Id">@editorial.Nombre</option>
+                                    }
+                                </InputSelect>
+                                @if (Libro.EditorialId == 0)
+                                {
+                                    <small class="text-muted d-block mt-2">Por favor, seleccione una editorial</small>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección: Autores (usando MultiSelectComponent) -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Autores</h5>
+                        </div>
+                        <div class="card-body">
+                            <MultiSelectComponent 
+                                @ref="AutoresComponent"
+                                TItem="Autor" 
+                                TValue="int"
+                                Label="Seleccione uno o más autores"
+                                Items="@Autores"
+                                SelectedIds="@AutoresSeleccionados"
+                                SelectedIdsChanged="@((HashSet<int> ids) => AutoresSeleccionados = ids)"
+                                GetItemId="@(a => a.Id)"
+                                GetItemDisplay="@(a => a.Nombre)"
+                                IsRequired="true" />
+                        </div>
+                    </div>
+
+                    <!-- Sección: Géneros (usando MultiSelectComponent) -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Géneros</h5>
+                        </div>
+                        <div class="card-body">
+                            <MultiSelectComponent 
+                                @ref="GenerosComponent"
+                                TItem="Genero" 
+                                TValue="int"
+                                Label="Seleccione uno o más géneros"
+                                Items="@Generos"
+                                SelectedIds="@GenerosSeleccionados"
+                                SelectedIdsChanged="@((HashSet<int> ids) => GenerosSeleccionados = ids)"
+                                GetItemId="@(g => g.Id)"
+                                GetItemDisplay="@(g => g.Nombre)"
+                                IsRequired="true" />
+                        </div>
+                    </div>
+
+                    <!-- Sección: Portada -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Portada</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="portada" class="form-label">Cargar Imagen de Portada</label>
+                                <InputFile id="portada" class="form-control" OnChange="@HandleFileSelected" accept="image/*" />
+                                <small class="text-muted d-block mt-2">Formatos soportados: JPG, PNG, GIF (máx. 5MB)</small>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(Libro.Portada))
+                            {
+                                <div class="mt-3">
+                                    <h6>Vista Previa:</h6>
+                                    <img src="@Libro.Portada" alt="Portada" style="max-width: 200px; max-height: 300px;" class="img-thumbnail" />
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="d-flex gap-2 mb-4">
+                        <button type="submit" class="btn btn-primary" disabled="@(IsSubmitting || !AutoresSeleccionados.Any() || !GenerosSeleccionados.Any())">
+                            @if (IsSubmitting)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                <p>Guardando...</p>
+                            }
+                            else
+                            {
+                                @(LibroId == 0 ? "Crear Libro" : "Guardar Cambios")
+                            }
+                        </button>
+                        <button type="button" class="btn btn-secondary" @onclick="@(() => NavigationManager.NavigateTo("/admin/libros"))">
+                            Cancelar
+                        </button>
+                    </div>
+                </EditForm>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int LibroId { get; set; } = 0;
+
+    private Libro Libro = new();
+    private List<Autor> Autores = new();
+    private List<Genero> Generos = new();
+    private List<Editorial> Editoriales = new();
+    private HashSet<int> AutoresSeleccionados = new();
+    private HashSet<int> GenerosSeleccionados = new();
+    private bool IsLoading = true;
+    private bool IsSubmitting = false;
+    private string ErrorMessage = string.Empty;
+
+    private MultiSelectComponent<Autor, int> AutoresComponent = null!;
+    private MultiSelectComponent<Genero, int> GenerosComponent = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Cargar datos de referencia
+            Autores = await AutorService.GetAllAsync();
+            Generos = await GeneroService.GetAllAsync();
+            Editoriales = await EditorialService.GetAllAsync();
+
+            // Si es edición, cargar el libro existente
+            if (LibroId > 0)
+            {
+                Libro = await LibroService.GetByIdAsync(LibroId);
+                
+                // Cargar autores seleccionados
+                if (Libro.LibrosAutores != null)
+                {
+                    AutoresSeleccionados = new HashSet<int>(
+                        Libro.LibrosAutores.Select(la => la.AutorId)
+                    );
+                }
+
+                // Cargar géneros seleccionados
+                if (Libro.LibrosGeneros != null)
+                {
+                    GenerosSeleccionados = new HashSet<int>(
+                        Libro.LibrosGeneros.Select(lg => lg.GeneroId)
+                    );
+                }
+            }
+            else
+            {
+                Libro = new Libro { EditorialId = 1 };
+            }
+
+            IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error al cargar los datos: {ex.Message}";
+            IsLoading = false;
+        }
+    }
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            var file = e.File;
+            const long maxFileSize = 5 * 1024 * 1024; // 5MB
+
+            if (file.Size > maxFileSize)
+            {
+                ErrorMessage = "El archivo es demasiado grande. Máximo 5MB.";
+                return;
+            }
+
+            using (var stream = file.OpenReadStream(maxFileSize))
+            {
+                var buffer = new byte[file.Size];
+                await stream.ReadAsync(buffer);
+                Libro.Portada = $"data:{file.ContentType};base64,{Convert.ToBase64String(buffer)}";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error al cargar la imagen: {ex.Message}";
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            // Validar selecciones
+            if (!AutoresSeleccionados.Any())
+            {
+                ErrorMessage = "Debe seleccionar al menos un autor";
+                return;
+            }
+
+            if (!GenerosSeleccionados.Any())
+            {
+                ErrorMessage = "Debe seleccionar al menos un género";
+                return;
+            }
+
+            IsSubmitting = true;
+
+            // Preparar las relaciones muchos a muchos
+            Libro.LibrosAutores = AutoresSeleccionados
+                .Select(autorId => new LibroAutor { AutorId = autorId, LibroId = Libro.Id })
+                .ToList();
+
+            Libro.LibrosGeneros = GenerosSeleccionados
+                .Select(generoId => new LibroGenero { GeneroId = generoId, LibroId = Libro.Id })
+                .ToList();
+
+            // Guardar el libro
+            if (LibroId == 0)
+            {
+                await LibroService.AddAsync(Libro);
+            }
+            else
+            {
+                await LibroService.UpdateAsync(Libro);
+            }
+
+            NavigationManager.NavigateTo("/admin/libros");
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error al guardar el libro: {ex.Message}";
+            IsSubmitting = false;
+        }
+    }
+}
