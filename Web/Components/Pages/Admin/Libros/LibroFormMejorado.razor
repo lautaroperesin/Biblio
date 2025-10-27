@@ -37,6 +37,21 @@
                             <h5 class="mb-0">Información Básica</h5>
                         </div>
                         <div class="card-body">
+                            <div class="mb-3">
+                                <label for="portada" class="form-label">Cargar Imagen de Portada</label>
+                                <InputUploadFile OnUploadFile="PortadaSubida" />
+                                <small class="text-muted d-block mt-2">Formatos soportados: JPG, PNG, GIF (máx. 5MB)</small>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(Libro.Portada))
+                            {
+                                <div class="mt-3">
+                                    <h6>Vista Previa:</h6>
+                                    <img src="@Libro.Portada" alt="Portada" style="max-width: 200px; max-height: 300px;" class="img-thumbnail" />
+                                </div>
+                            }
+                        </div>
+                        <div class="card-body">
                             <!-- Título -->
                             <div class="mb-3">
                                 <label for="titulo" class="form-label">Título <span class="text-danger">*</span></label>
@@ -138,28 +153,6 @@
                         </div>
                     </div>
 
-                    <!-- Sección: Portada -->
-                    <div class="card mb-4">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0">Portada</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <label for="portada" class="form-label">Cargar Imagen de Portada</label>
-                                <InputFile id="portada" class="form-control" OnChange="@HandleFileSelected" accept="image/*" />
-                                <small class="text-muted d-block mt-2">Formatos soportados: JPG, PNG, GIF (máx. 5MB)</small>
-                            </div>
-
-                            @if (!string.IsNullOrEmpty(Libro.Portada))
-                            {
-                                <div class="mt-3">
-                                    <h6>Vista Previa:</h6>
-                                    <img src="@Libro.Portada" alt="Portada" style="max-width: 200px; max-height: 300px;" class="img-thumbnail" />
-                                </div>
-                            }
-                        </div>
-                    </div>
-
                     <!-- Botones de Acción -->
                     <div class="d-flex gap-2 mb-4">
                         <button type="submit" class="btn btn-primary" disabled="@(IsSubmitting || !AutoresSeleccionados.Any() || !GenerosSeleccionados.Any())">
@@ -188,9 +181,9 @@
     public int LibroId { get; set; } = 0;
 
     private Libro Libro = new();
-    private List<Autor> Autores = new();
-    private List<Genero> Generos = new();
-    private List<Editorial> Editoriales = new();
+    private List<Autor?> Autores = new();
+    private List<Genero?> Generos = new();
+    private List<Editorial?> Editoriales = new();
     private HashSet<int> AutoresSeleccionados = new();
     private HashSet<int> GenerosSeleccionados = new();
     private bool IsLoading = true;
@@ -200,74 +193,59 @@
     private MultiSelectComponent<Autor, int> AutoresComponent = null!;
     private MultiSelectComponent<Genero, int> GenerosComponent = null!;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        try
+        if(firstRender)
         {
-            // Cargar datos de referencia
-            Autores = await AutorService.GetAllAsync();
-            Generos = await GeneroService.GetAllAsync();
-            Editoriales = await EditorialService.GetAllAsync();
-
-            // Si es edición, cargar el libro existente
-            if (LibroId > 0)
+            try
             {
-                Libro = await LibroService.GetByIdAsync(LibroId);
-                
-                // Cargar autores seleccionados
-                if (Libro.LibrosAutores != null)
+                // Cargar datos de referencia
+                var autoresTask = AutorService.GetAllAsync();
+                var generosTask = GeneroService.GetAllAsync();
+                var editorialesTask = EditorialService.GetAllAsync();
+
+				await Task.WhenAll(autoresTask, generosTask, editorialesTask);
+
+				Autores = await autoresTask;
+				Generos = await generosTask;
+				Editoriales = await editorialesTask;
+
+                // Si es edición, cargar el libro existente
+                if (LibroId > 0)
                 {
-                    AutoresSeleccionados = new HashSet<int>(
-                        Libro.LibrosAutores.Select(la => la.AutorId)
-                    );
+                    Libro = await LibroService.GetByIdAsync(LibroId);
+
+                    // Cargar autores seleccionados
+                    if (Libro.LibrosAutores != null)
+                    {
+                        AutoresSeleccionados = new HashSet<int>(
+                            Libro.LibrosAutores.Select(la => la.AutorId)
+                        );
+                    }
+
+                    // Cargar géneros seleccionados
+                    if (Libro.LibrosGeneros != null)
+                    {
+                        GenerosSeleccionados = new HashSet<int>(
+                            Libro.LibrosGeneros.Select(lg => lg.GeneroId)
+                        );
+                    }
+                }
+                else
+                {
+                    Libro = new Libro { EditorialId = 1 };
                 }
 
-                // Cargar géneros seleccionados
-                if (Libro.LibrosGeneros != null)
-                {
-                    GenerosSeleccionados = new HashSet<int>(
-                        Libro.LibrosGeneros.Select(lg => lg.GeneroId)
-                    );
-                }
+                IsLoading = false;
+				StateHasChanged();
             }
-            else
+            catch (Exception ex)
             {
-                Libro = new Libro { EditorialId = 1 };
-            }
-
-            IsLoading = false;
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Error al cargar los datos: {ex.Message}";
-            IsLoading = false;
-        }
-    }
-
-    private async Task HandleFileSelected(InputFileChangeEventArgs e)
-    {
-        try
-        {
-            var file = e.File;
-            const long maxFileSize = 5 * 1024 * 1024; // 5MB
-
-            if (file.Size > maxFileSize)
-            {
-                ErrorMessage = "El archivo es demasiado grande. Máximo 5MB.";
-                return;
-            }
-
-            using (var stream = file.OpenReadStream(maxFileSize))
-            {
-                var buffer = new byte[file.Size];
-                await stream.ReadAsync(buffer);
-                Libro.Portada = $"data:{file.ContentType};base64,{Convert.ToBase64String(buffer)}";
+                ErrorMessage = $"Error al cargar los datos: {ex.Message}";
+                IsLoading = false;
             }
         }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Error al cargar la imagen: {ex.Message}";
-        }
+
     }
 
     private async Task HandleSubmit()
@@ -315,5 +293,11 @@
             ErrorMessage = $"Error al guardar el libro: {ex.Message}";
             IsSubmitting = false;
         }
+    }
+
+    private void PortadaSubida(string nombreArchivo)
+    {
+        Libro.Portada = nombreArchivo;
+        StateHasChanged();
     }
 }

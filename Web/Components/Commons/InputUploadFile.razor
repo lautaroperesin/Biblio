@@ -1,0 +1,65 @@
+﻿@inject HttpClient HttpClient
+@inject SweetAlertService SweetAlert
+@inject IJSRuntime js
+@rendermode InteractiveServer
+
+<InputFile class="form-control" OnChange="@OnFileSelected" id="@idInputFile" accept="image/*" />
+
+
+
+
+@code {
+    private string ImageUrl { get; set; } = string.Empty;
+    private Guid idInputFile = Guid.NewGuid();
+
+    [Parameter]
+    public EventCallback<string> OnUploadFile { get; set; }
+
+    private async Task OnFileSelected(InputFileChangeEventArgs e)
+    {
+        var maxAllowedSize = 5 * 1024 * 1024; // 4 MB
+        var file = e.File;
+
+        if (file == null)
+        {
+            return;
+        }
+
+        if (file.Size > maxAllowedSize)
+        {
+            await SweetAlert.FireAsync(new SweetAlertOptions
+                {
+                    Title = "Error en la carga de la imagen",
+                    Text = $"El archivo {file.Name} excede el tamaño máximo permitido de {maxAllowedSize / (1024 * 1024)} Megabytes.",
+                    Icon = SweetAlertIcon.Error,
+                    ShowCancelButton = false,
+                    ConfirmButtonText = "Ok"
+                });
+            await js.InvokeVoidAsync("eval", $"document.getElementById('{idInputFile}').value = '';");
+        }
+
+        try
+        {
+            var ms = new MemoryStream();
+            await file.OpenReadStream(maxAllowedSize).CopyToAsync(ms);
+            await UploadToFirebase(ms.ToArray(), file.Name);
+        }
+        catch (IOException ex)
+        {
+            // Maneja el error si el archivo excede el tamaño permitido
+            Console.Error.WriteLine($"Hubo un error al subir el archivo {file.Name}");
+        }
+    }
+
+    private async Task UploadToFirebase(byte[] fileBytes, string fileName)
+    {
+        var storage = new FirebaseStorage("biblio2023-ccb07.firebasestorage.app");
+        var upload = await storage
+            .Child("images")
+            .Child($"{Guid.NewGuid()}-{fileName}")
+            .PutAsync(new MemoryStream(fileBytes));
+
+        ImageUrl = upload;
+        await OnUploadFile.InvokeAsync(ImageUrl);
+    }
+    }

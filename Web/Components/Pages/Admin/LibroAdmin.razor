@@ -39,16 +39,26 @@
 
     bool isLoading;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await LoadLibros();
+        if(firstRender)
+        {
+            await GetLibros();
+            StateHasChanged();
+        }
     }
 
-    private async Task LoadLibros()
+    protected override async Task OnInitializedAsync()
+    {
+        await GetLibros();
+    }
+
+    private async Task GetLibros()
     {
         isLoading = true;
         libros = await _libroService.GetAllAsync();
         isLoading = false;
+        StateHasChanged();
     }
 
     private void Modificar(Libro entity)
