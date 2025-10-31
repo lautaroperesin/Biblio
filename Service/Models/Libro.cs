@@ -19,6 +19,9 @@ namespace Service.Models
         [Required]
         [Column(TypeName = "text")]
         public string Sinopsis { get; set; } = string.Empty;
+        public string CDU { get; set; } = string.Empty;
+        public string Libristica { get; set; } = string.Empty;
+        public string PalabrasClave { get; set; } = string.Empty;
         [Required]
         public int Paginas { get; set; } = 0;
         public int AnioPublicacion { get; set; } = 0;

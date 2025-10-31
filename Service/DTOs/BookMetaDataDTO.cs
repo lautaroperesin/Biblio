@@ -10,12 +10,18 @@ namespace Service.DTOs
     {
         public string? Titulo { get; set; }
         public List<string>? Autores { get; set; }
+        public string? Generos { get; set; }
         public string? Editorial { get; set; }
         public int? Anio { get; set; }
-        public List<string>? Isbn { get; set; }         // acepta ISBN-10/13
-        public string? Edicion { get; set; }
-        public string? Subtitulo { get; set; }
-        public string? Idioma { get; set; }
-        public double? Confianza { get; set; }          // heurística del modelo
+        public int? Paginas { get; set; }
+        public string? Descripcion { get; set; }
+        public string? Sinopsis { get; set; }
+        public string? CDU { get; set; }
+        public string? Libristica { get; set; }
+        public List<string>? PalabrasClave
+        {
+            get; set;
+
+        }
     }
 }
